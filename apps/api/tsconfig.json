@@ -1,0 +1,11 @@
+{
+  "extends": "@haito/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["es2024"],
+    "types": ["bun"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

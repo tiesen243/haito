@@ -1,5 +1,6 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config')
 const { withUniwindConfig } = require('uniwind/metro')
+const path = require('node:path')
 
 /**
  * Metro configuration
@@ -7,7 +8,12 @@ const { withUniwindConfig } = require('uniwind/metro')
  *
  * @type {import('metro-config').MetroConfig}
  */
-const config = {}
+const config = {
+  watchFolders: [
+    path.resolve(__dirname, '../../node_modules'),
+    path.resolve(__dirname, './node_modules'),
+  ],
+}
 
 module.exports = withUniwindConfig(
   mergeConfig(getDefaultConfig(__dirname), config),

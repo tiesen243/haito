@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { View } from 'react-native'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'

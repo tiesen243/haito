@@ -1,0 +1,26 @@
+{
+  "name": "@haito/validators",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./models/*": {
+      "types": "./dist/models/*.model.d.mts",
+      "default": "./dist/models/*.model.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@haito/tsconfig": "workspace:*",
+    "tsdown": "catalog:dev",
+    "typescript": "catalog:dev"
+  }
+}

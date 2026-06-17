@@ -10,8 +10,8 @@ interface Tokens {
 async function setTokens(tokens: Tokens): Promise<void> {
   const credentials = await Keychain.getGenericPassword({ service: TOKEN_KEY })
 
-  let refreshToken = credentials ? credentials.username : null
-  let accessToken = credentials ? credentials.password : null
+  let refreshToken = credentials ? credentials.username : ''
+  let accessToken = credentials ? credentials.password : ''
 
   if (tokens.refreshToken !== undefined && tokens.refreshToken !== null)
     refreshToken = tokens.refreshToken

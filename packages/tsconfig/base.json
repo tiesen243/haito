@@ -1,11 +1,11 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["es2024"],
     "target": "es2024",
     "module": "preserve",
     "moduleDetection": "force",
-    "jsx": "react-native",
     "allowJs": true,
 
     // Bundler mode
@@ -24,13 +24,7 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
-
-    "paths": {
-      "@/*": ["./src/*"],
-      "@assets/*": ["./assets/*"]
-    }
+    "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }
