@@ -1,8 +1,8 @@
 # dependencies (bun install)
 node_modules
 
-# react native
-**/.metro-health-check
+# react router
+**/.react-router/
 
 # android
 **/android/.gradle
@@ -31,8 +31,9 @@ node_modules
 
 # output
 **/uniwind-types.d.ts
-out
-dist
+build/
+dist/
+out/
 *.tgz
 
 # code coverage

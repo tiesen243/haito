@@ -1,0 +1,11 @@
+{
+  "extends": "@haito/tsconfig/react.json",
+  "compilerOptions": {
+    "rootDirs": [".", "./.react-router/types"],
+    "types": ["bun", "vite/client"],
+    "paths": {
+      "@/*": ["./app/*"]
+    }
+  },
+  "include": ["app/**/*.ts", "app/**/*.tsx"]
+}
