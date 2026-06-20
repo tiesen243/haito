@@ -1,7 +1,6 @@
 {
   "name": "@haito/api",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
   "main": "dist/app.mjs",
   "types": "dist/app.d.mts",

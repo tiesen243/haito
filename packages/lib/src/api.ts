@@ -1,9 +1,5 @@
-export interface ApiError {
+export interface ApiResponse<TData, TError = Record<string, unknown>> {
   message: string
-  details?: Record<string, unknown>
-}
-
-export interface ApiResponse<TData, TError = ApiError> {
   data: TData | null
   error: TError | null
 }
@@ -11,6 +7,7 @@ export interface ApiResponse<TData, TError = ApiError> {
 export class Api {
   private readonly baseHeaders = {
     'Content-Type': 'application/json',
+    'x-client': 'unknown',
   }
 
   constructor(
@@ -24,7 +21,7 @@ export class Api {
       }
   }
 
-  public get<TData, TError = ApiError>(
+  public get<TData, TError = Record<string, unknown>>(
     endpoint: string,
     options?: RequestInit
   ): Promise<ApiResponse<TData, TError>> {
@@ -34,7 +31,7 @@ export class Api {
     })
   }
 
-  public post<TData, TError = ApiError>(
+  public post<TData, TError = Record<string, unknown>>(
     endpoint: string,
     body?: Record<string, unknown>,
     options?: RequestInit
@@ -46,7 +43,7 @@ export class Api {
     })
   }
 
-  public put<TData, TError = ApiError>(
+  public put<TData, TError = Record<string, unknown>>(
     endpoint: string,
     body?: Record<string, unknown>,
     options?: RequestInit
@@ -58,7 +55,7 @@ export class Api {
     })
   }
 
-  public delete<TData, TError = ApiError>(
+  public delete<TData, TError = Record<string, unknown>>(
     endpoint: string,
     options?: RequestInit
   ): Promise<ApiResponse<TData, TError>> {
@@ -68,7 +65,7 @@ export class Api {
     })
   }
 
-  private async request<TData, TError = ApiError>(
+  private async request<TData, TError = Record<string, unknown>>(
     endpoint: string,
     options?: RequestInit
   ): Promise<ApiResponse<TData, TError>> {
@@ -81,15 +78,17 @@ export class Api {
     })
 
     try {
-      const json = await response.json()
-      if (!response.ok) return { data: null, error: json as TError }
-      return { data: json as TData, error: null }
+      const { message, data, error } = (await response.json()) as ApiResponse<
+        TData,
+        TError
+      >
+      if (!response.ok) return { message, data: null, error }
+      return { message, data, error: null }
     } catch (error) {
       return {
+        message: error instanceof Error ? error.message : 'Unknown error',
         data: null,
-        error: {
-          message: error instanceof Error ? error.message : 'Unknown error',
-        } as TError,
+        error: null,
       }
     }
   }

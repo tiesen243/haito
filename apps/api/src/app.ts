@@ -28,5 +28,3 @@ export async function createApp() {
 
   return app.compile()
 }
-
-export type App = Awaited<ReturnType<typeof createApp>>

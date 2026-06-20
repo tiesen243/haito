@@ -1,0 +1,20 @@
+{
+  "name": "@haito/web",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@haito/lib": "workspace:*",
+    "@haito/ui": "workspace:*",
+    "@haito/validators": "workspace:*",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
+  "devDependencies": {
+    "@haito/oxlint": "workspace:*",
+    "@haito/tsconfig": "workspace:*",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "tailwindcss": "^4.3.0",
+    "typescript": "catalog:dev"
+  }
+}

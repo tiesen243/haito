@@ -1,6 +1,6 @@
 import * as Keychain from 'react-native-keychain'
 
-import { TOKEN_KEY } from '@/lib/constants'
+const TOKEN_KEY = 'auth.tokens'
 
 interface Tokens {
   accessToken?: string | null
