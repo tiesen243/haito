@@ -12,6 +12,7 @@ export abstract class EntityBase<TProps, TPrimaryKey = string> {
 
   public clone(overrides: Partial<TProps> = {}): this {
     const clonedProps = { ...overrides, updatedAt: new Date() }
+    // oxlint-disable-next-line typescript/no-explicit-any
     return new (this.constructor as any)(clonedProps)
   }
 

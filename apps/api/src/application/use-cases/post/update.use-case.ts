@@ -1,4 +1,7 @@
-import { CreatePostModel, OnePostModel } from '@haito/validators/models/post'
+import type {
+  CreatePostModel,
+  OnePostModel,
+} from '@haito/validators/models/post'
 
 import type { PostRepository } from '@/domain/repositories/post.repository'
 import type { UseCaseBase } from '@/shared/bases/use-case.base'

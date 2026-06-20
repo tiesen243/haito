@@ -6,6 +6,7 @@ interface HttpReturns<TData, TError = Record<string, unknown>> {
   error: TError | null
 }
 
+// oxlint-disable-next-line typescript/no-extraneous-class
 export class Http {
   private static readonly baseUrl: string = 'http://localhost:3000/api'
   private static readonly headers: HeadersInit_ = {
@@ -70,7 +71,7 @@ export class Http {
       return { message: json.message, data: json.data, error: null }
     } catch (error) {
       let message = 'An unknown error occurred'
-      if (error instanceof Error) message = error.message
+      if (error instanceof Error) ({ message } = error)
       return { message, data: null, error: null }
     }
   }

@@ -30,6 +30,7 @@ node_modules
 !default.perspectivev3
 
 # output
+**/uniwind-types.d.ts
 out
 dist
 *.tgz
@@ -52,8 +53,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .cache
 *.tsbuildinfo
 
-# IntelliJ based IDEs
-.idea
+# turbo
+.turbo/
 
-# Finder (MacOS) folder config
 .DS_Store

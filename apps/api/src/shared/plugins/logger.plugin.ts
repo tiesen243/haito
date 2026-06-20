@@ -21,21 +21,23 @@ export const loggerPlugin = createElysia({
     if (path === '/favicon.ico' || code === 'PARSE' || code === 'VALIDATION')
       return
     let status = typeof code === 'number' ? code : 500,
-      message = 'Internal Server Error',
-      details = null
+      // oxlint-disable-next-line sort-vars
+      details = null,
+      message = 'Internal Server Error'
 
     switch (code) {
       case 'ApiResponse':
-        status = error.status
-        message = error.message
+        ;({ status, message } = error)
         details = error.error
         break
       case 'NOT_FOUND':
       case 'INTERNAL_SERVER_ERROR':
         if (code === 'NOT_FOUND') status = 404
-        message = error.message
+        ;({ message } = error)
         details = error.stack
         break
+      default:
+        return
     }
 
     logger.error(`[${status}] ${message}`, {

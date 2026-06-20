@@ -1,5 +1,6 @@
 import { EntityBase } from '@/shared/bases/entity.base'
 
+// oxlint-disable-next-line unicorn/custom-error-definition
 export class ApiResponse<
   TData,
   TError = Record<string, unknown>,
@@ -12,7 +13,7 @@ export class ApiResponse<
     public timestamp: string = new Date().toISOString()
   ) {
     super(message)
-    this.name = this.constructor.name
+    this.name = 'ApiResponse'
   }
 
   public toResponse() {

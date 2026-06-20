@@ -4,9 +4,21 @@
     "apps/*",
     "packages/*"
   ],
+  "scripts": {
+    "format": "oxfmt --check ./apps ./packages",
+    "format:fix": "oxfmt ./apps ./packages",
+    "lint": "oxlint ./apps ./packages",
+    "lint:fix": "oxlint --fix ./apps ./packages"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.55.0",
+    "oxlint": "^1.70.0",
+    "turbo": "^2.9.18"
+  },
   "overrides": {
     "@sinclair/typebox": "0.34.41"
   },
+  "packageManager": "bun@1.3.0",
   "catalogs": {
     "dev": {
       "typescript": "^6.0.3",

@@ -8,6 +8,7 @@ import { PostRepositoryMemory } from '@/infras/memory/post.repository.menory'
 import { postRoute } from '@/interfaces/http/post.route'
 import { loggerPlugin } from '@/shared/plugins/logger.plugin'
 
+// oxlint-disable-next-line require-await
 export async function createApp() {
   const postRepo = new PostRepositoryMemory()
 

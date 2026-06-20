@@ -27,7 +27,7 @@ function Avatar({ className, ...props }: React.ComponentProps<typeof View>) {
       <View
         data-slot='avatar'
         className={cn(
-          'size-9 rounded-full relative flex shrink-0 items-center justify-between',
+          'relative flex size-9 shrink-0 items-center justify-between rounded-full',
           className
         )}
         {...props}
@@ -48,7 +48,7 @@ function AvatarImage({
   return (
     <Image
       data-slot='avatar-image'
-      className={cn('size-full absolute rounded-full aspect-square', className)}
+      className={cn('absolute aspect-square size-full rounded-full', className)}
       resizeMode='cover'
       onLoadStart={() => {
         context.setIsLoading(true)
@@ -78,12 +78,12 @@ function AvatarFallback({
     <View
       data-slot='avatar-fallback'
       className={cn(
-        'flex size-full items-center justify-center rounded-full bg-muted',
+        'bg-muted flex size-full items-center justify-center rounded-full',
         className
       )}
       {...props}
     >
-      <Text className='text-sm text-muted-foreground'>{children}</Text>
+      <Text className='text-muted-foreground text-sm'>{children}</Text>
     </View>
   )
 }

@@ -14,10 +14,10 @@ async function setTokens(tokens: Tokens): Promise<void> {
   let accessToken = credentials ? credentials.password : ''
 
   if (tokens.refreshToken !== undefined && tokens.refreshToken !== null)
-    refreshToken = tokens.refreshToken
+    ({ refreshToken } = tokens)
 
   if (tokens.accessToken !== undefined && tokens.accessToken !== null)
-    accessToken = tokens.accessToken
+    ({ accessToken } = tokens)
 
   await Keychain.setGenericPassword(refreshToken, accessToken, {
     service: TOKEN_KEY,
@@ -34,7 +34,9 @@ async function getTokens(): Promise<Tokens> {
         refreshToken: credentials.username ?? null,
         accessToken: credentials.password ?? null,
       }
-  } catch {}
+  } catch {
+    // Ignore error and return null tokens
+  }
 
   return { accessToken: null, refreshToken: null }
 }

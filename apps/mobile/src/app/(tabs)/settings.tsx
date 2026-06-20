@@ -9,8 +9,8 @@ export default function TabsSettingsScreen() {
   const { theme, hasAdaptiveThemes } = useUniwind()
 
   return (
-    <View className='py-4 flex flex-col gap-4 bg-background'>
-      <View className='px-4 flex flex-col gap-2'>
+    <View className='bg-background flex flex-col gap-4 py-4'>
+      <View className='flex flex-col gap-2 px-4'>
         <Text variant='h2'>Dark mode</Text>
         <RadioGroup
           value={hasAdaptiveThemes ? 'system' : theme}

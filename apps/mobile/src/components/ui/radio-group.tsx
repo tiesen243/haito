@@ -64,13 +64,13 @@ function RadioGroupItem({
     >
       <View
         className={cn(
-          'size-5 flex items-center p-0 m-0 justify-center rounded-full border border-border',
+          'border-border m-0 flex size-5 items-center justify-center rounded-full border p-0',
           isSelected ? 'bg-primary' : 'bg-card'
         )}
       >
         <View
           className={cn(
-            'size-2 rounded-full p-0 m-0',
+            'm-0 size-2 rounded-full p-0',
             isSelected ? 'bg-primary-foreground' : 'bg-card'
           )}
         />

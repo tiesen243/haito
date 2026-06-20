@@ -14,7 +14,7 @@ import { Text } from '@/components/ui/text'
 
 export default function TabsIndexScreen() {
   return (
-    <View className='flex-1 items-center justify-center bg-background'>
+    <View className='bg-background flex-1 items-center justify-center'>
       <Card>
         <CardHeader className='flex flex-row items-center gap-2'>
           <Avatar>

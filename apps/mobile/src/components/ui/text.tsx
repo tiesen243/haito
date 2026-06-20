@@ -1,12 +1,15 @@
+import type { VariantProps } from 'class-variance-authority'
 import type { Role, TextProps as RNTextProps } from 'react-native'
 
-import { cva, type VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import * as React from 'react'
 import { Platform, Text as RNText } from 'react-native'
 
 import { cn } from '@/lib/utils'
 
-type TextContextValue = { className?: string }
+interface TextContextValue {
+  className?: string
+}
 
 const TextContext = React.createContext<TextContextValue | null>(null)
 
@@ -18,7 +21,7 @@ function TextProvider({
   return <TextContext value={memoizedValue}>{children}</TextContext>
 }
 
-const textVariants = cva('text-base text-foreground', {
+const textVariants = cva('text-foreground text-base', {
   variants: {
     variant: {
       h1: 'scroll-m-20 text-4xl font-extrabold tracking-tight text-balance',
@@ -27,8 +30,8 @@ const textVariants = cva('text-base text-foreground', {
       h4: 'scroll-m-20 text-lg font-semibold tracking-tight text-balance',
       p: 'text-justify leading-7 text-pretty',
       small: 'block text-sm leading-none font-medium tracking-wide',
-      blockquote: 'my-4 inline-block border-l-2 border-border pl-6 italic',
-      code: 'relative w-fit rounded-sm border border-accent bg-accent/40 px-[0.3rem] py-[0.2rem] font-mono text-sm font-medium text-accent-foreground',
+      blockquote: 'border-border my-4 inline-block border-l-2 pl-6 italic',
+      code: 'border-accent bg-accent/40 text-accent-foreground relative w-fit rounded-sm border px-[0.3rem] py-[0.2rem] font-mono text-sm font-medium',
     },
   },
   defaultVariants: {

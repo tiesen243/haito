@@ -16,7 +16,9 @@ async function restoreTheme(): Promise<void> {
       service: THEME_KEY,
     })
     if (credentials) Uniwind.setTheme(credentials.password as ThemeName)
-  } catch {}
+  } catch {
+    // Ignore error
+  }
 }
 
 export { setTheme, restoreTheme }

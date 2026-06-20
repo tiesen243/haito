@@ -12,11 +12,11 @@ interface CardTextProps extends Omit<
 
 function Card({ className, ...props }: CardProps) {
   return (
-    <TextProvider className='text-sm text-card-foreground'>
+    <TextProvider className='text-card-foreground text-sm'>
       <View
         data-slot='card'
         className={cn(
-          'group/card flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 border border-foreground/10',
+          'group/card bg-card border-foreground/10 flex flex-col gap-4 overflow-hidden rounded-xl border py-4',
           className
         )}
         {...props}
@@ -52,7 +52,7 @@ function CardDescription({ className, ...props }: CardTextProps) {
   return (
     <Text
       data-slot='card-description'
-      className={cn('text-sm text-muted-foreground', className)}
+      className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
   )
@@ -72,7 +72,7 @@ function CardFooter({ className, ...props }: CardProps) {
   return (
     <View
       data-slot='card-footer'
-      className={cn('flex flex-row px-4 items-center rounded-b-xl', className)}
+      className={cn('flex flex-row items-center rounded-b-xl px-4', className)}
       {...props}
     />
   )

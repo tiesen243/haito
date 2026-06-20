@@ -21,7 +21,7 @@ export class PostRepositoryMemory implements PostRepository {
   }
 
   one(id: PostEntity['id'], _tx?: unknown): Promise<PostEntity | null> {
-    const post = this.posts.find((p) => (p as any).id === id)
+    const post = this.posts.find((p) => p.id === id)
     return Promise.resolve(post ?? null)
   }
 
@@ -31,7 +31,7 @@ export class PostRepositoryMemory implements PostRepository {
   }
 
   update(entity: PostEntity, _tx?: unknown): Promise<PostEntity['id']> {
-    const index = this.posts.findIndex((p) => (p as any).id === entity.id)
+    const index = this.posts.findIndex((p) => p.id === entity.id)
     if (index !== -1) this.posts[index] = entity
     return Promise.resolve(entity.id)
   }

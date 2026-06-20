@@ -31,7 +31,6 @@
   "sortPackageJson": true,
 
   "sortTailwindcss": {
-    "functions": ["clsx", "cva", "cn"],
-    "stylesheet": "./app/globals.css"
+    "functions": ["clsx", "cva", "cn"]
   }
 }
