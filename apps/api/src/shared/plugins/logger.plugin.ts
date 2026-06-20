@@ -1,7 +1,7 @@
 import { logger } from '@sentry/elysia'
 
 import { ApiResponse } from '@/shared/api-response'
-import { createElysia } from '@/shared/lib/create-elysia'
+import { createElysia } from '@/shared/create-elysia'
 
 export const loggerPlugin = createElysia({
   name: 'plugin.logger',

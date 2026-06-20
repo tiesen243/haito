@@ -10,6 +10,7 @@
     "start:ios": "react-native run-ios"
   },
   "dependencies": {
+    "@haito/lib": "workspace:*",
     "@haito/validators": "workspace:*",
     "@react-navigation/bottom-tabs": "^7.18.0",
     "@react-navigation/native": "^7.3.1",

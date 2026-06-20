@@ -1,14 +1,14 @@
 import { CreatePostModel, OnePostModel } from '@haito/validators/models/post'
-import { Elysia } from 'elysia'
 
 import type { PostUseCases } from '@/application/types/use-cases'
 
+import { createElysia } from '@/shared/create-elysia'
+
 export const postRoute = (useCases: PostUseCases) =>
-  new Elysia({
+  createElysia({
     name: 'route.post',
     prefix: '/api/posts',
   })
-
     .get('/', () => useCases.list.execute(), {})
 
     .get('/:id', ({ params }) => useCases.one.execute(params), {

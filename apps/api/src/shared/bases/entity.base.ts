@@ -1,4 +1,4 @@
-import { createId } from '@/shared/lib/create-id'
+import { createId } from '@haito/lib/create-id'
 
 export abstract class EntityBase<TProps, TPrimaryKey = string> {
   public id: TPrimaryKey = createId() as unknown as TPrimaryKey

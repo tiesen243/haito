@@ -1,7 +1,6 @@
 {
   "extends": "@haito/tsconfig/base.json",
   "compilerOptions": {
-    "lib": ["es2024"],
     "paths": {
       "@/*": ["./src/*"]
     }
