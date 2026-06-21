@@ -1,3 +1,4 @@
+import { cors } from '@elysia/cors'
 import { Elysia } from 'elysia'
 
 import { CreatePostUseCase } from '@/application/use-cases/post/create.use-case'
@@ -22,6 +23,7 @@ export async function createApp() {
   const app = new Elysia()
     // Register plugins
     .use(loggerPlugin)
+    .use(cors())
 
     // Register HTTP routes
     .use(postRoute(postUseCases))

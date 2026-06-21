@@ -4,6 +4,9 @@
   "tasks": {
     "build": {
       "outputs": [".react-router/**", "build/**"]
+    },
+    "dev": {
+      "dependsOn": ["^build"]
     }
   }
 }

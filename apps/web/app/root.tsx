@@ -1,6 +1,6 @@
-import { ThemeProvider } from 'next-themes'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
+import { Provider } from '@/components/provider'
 import globalsCss from '@/globals.css?url'
 
 import type { Route } from './+types/root'
@@ -39,13 +39,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <ThemeProvider
-      attribute='class'
-      defaultTheme='system'
-      disableTransitionOnChange
-      enableSystem
-    >
+    <Provider>
       <Outlet />
-    </ThemeProvider>
+    </Provider>
   )
 }

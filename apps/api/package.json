@@ -10,6 +10,7 @@
     "start": "bun run dist/server.mjs"
   },
   "dependencies": {
+    "@elysia/cors": "^1.4.2",
     "@haito/lib": "workspace:*",
     "@haito/validators": "workspace:*",
     "@sentry/elysia": "^10.59.0",

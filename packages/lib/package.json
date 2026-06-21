@@ -12,11 +12,13 @@
   "scripts": {
     "build": "tsdown"
   },
-  "dependencies": {},
   "devDependencies": {
     "@haito/oxlint": "workspace:*",
     "@haito/tsconfig": "workspace:*",
     "tsdown": "catalog:dev",
     "typescript": "catalog:dev"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "catalog:prod"
   }
 }

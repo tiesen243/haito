@@ -10,6 +10,7 @@
     "@haito/lib": "workspace:*",
     "@haito/ui": "workspace:*",
     "@haito/validators": "workspace:*",
+    "@tanstack/react-query": "catalog:prod",
     "isbot": "^5.1.43",
     "next-themes": "catalog:prod",
     "react": "catalog:react",

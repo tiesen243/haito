@@ -15,6 +15,7 @@
       "name": "@haito/api",
       "version": "0.0.0",
       "dependencies": {
+        "@elysia/cors": "^1.4.2",
         "@haito/lib": "workspace:*",
         "@haito/validators": "workspace:*",
         "@sentry/elysia": "^10.59.0",
@@ -70,6 +71,7 @@
         "@haito/lib": "workspace:*",
         "@haito/ui": "workspace:*",
         "@haito/validators": "workspace:*",
+        "@tanstack/react-query": "catalog:prod",
         "isbot": "^5.1.43",
         "next-themes": "catalog:prod",
         "react": "catalog:react",
@@ -96,6 +98,9 @@
         "@haito/tsconfig": "workspace:*",
         "tsdown": "catalog:dev",
         "typescript": "catalog:dev",
+      },
+      "peerDependencies": {
+        "@tanstack/react-query": "catalog:prod",
       },
     },
     "packages/oxlint": {
@@ -301,6 +306,8 @@
     "@base-ui/utils": ["@base-ui/utils@0.3.1", "", { "dependencies": { "@babel/runtime": "^7.29.2", "@floating-ui/utils": "^0.2.11", "reselect": "^5.2.0", "use-sync-external-store": "^1.6.0" }, "peerDependencies": { "@types/react": "^17 || ^18 || ^19", "react": "^17 || ^18 || ^19", "react-dom": "^17 || ^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-gFFiltORVmW/N6IILTGxizP3PBpVpysqML1ALY5Vk0mH+7faVkCknOU31goYHN5Aoek2dkjxva1XOD2Ce9WuIg=="],
 
     "@borewit/text-codec": ["@borewit/text-codec@0.2.2", "", {}, "sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ=="],
+
+    "@elysia/cors": ["@elysia/cors@1.4.2", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-dXkfo1IxZWJkJReNYnPJorJqb+XpWno0D/YWlMEJSkiFIFd751zJ4R/YswAYdo88mLWo8cycEj673o7L+gbxsw=="],
 
     "@emnapi/core": ["@emnapi/core@1.11.1", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.2", "tslib": "^2.4.0" } }, "sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ=="],
 

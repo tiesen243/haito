@@ -1,6 +1,5 @@
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 
-import { cn } from '@haito/ui'
 import * as React from 'react'
 import {
   Modal,
@@ -16,6 +15,7 @@ import {
   ChevronUpIcon,
 } from '@/components/native/icons'
 import { Typography } from '@/components/native/typography'
+import { cn } from '@/utils'
 
 interface SelectContextValue {
   open: boolean
