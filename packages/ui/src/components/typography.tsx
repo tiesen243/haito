@@ -4,7 +4,7 @@ import { cva } from 'class-variance-authority'
 
 import { cn } from '@/utils'
 
-const typographyVariants = cva('text-base font-normal', {
+const typographyVariants = cva('text-foreground text-base font-normal', {
   variants: {
     variant: {
       h1: 'scroll-m-20 text-4xl font-extrabold tracking-tight text-balance',
@@ -17,9 +17,9 @@ const typographyVariants = cva('text-base font-normal', {
       ol: 'my-4 ml-6 list-decimal text-base [&>li]:mt-2 [&>li]:first:mt-0',
       blockquote:
         'my-4 inline-block border-l-2 pl-6 italic before:content-["“"] after:content-["”"]',
-      code: 'relative w-fit rounded-sm border border-accent bg-accent/40 px-[0.3rem] py-[0.2rem] font-mono text-sm font-medium text-accent-foreground',
+      code: 'border-accent bg-accent/40 text-accent-foreground relative w-fit rounded-sm border px-[0.3rem] py-[0.2rem] font-mono text-sm font-medium',
       caption:
-        'mt-1 block text-center text-sm tracking-wide text-muted-foreground',
+        'text-muted-foreground mt-1 block text-center text-sm tracking-wide',
     },
   },
   defaultVariants: {

@@ -1,43 +1,89 @@
-import { View } from 'react-native'
+import type { ListPostsModel } from '@haito/validators/models/post'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { Card, CardDescription, CardHeader, CardTitle } from '@haito/ui/card'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Text } from '@/components/ui/text'
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@haito/ui/select'
+import { useQuery } from '@tanstack/react-query'
+import { FlatList } from 'react-native'
+
+import { Container } from '@/components/container'
+import { api } from '@/lib/api'
 
 export default function TabsIndexScreen() {
+  const { data, refetch, isRefetching } = useQuery({
+    queryKey: ['posts'],
+    queryFn: () =>
+      api
+        .get<ListPostsModel.Output>('/posts')
+        .then((res) =>
+          res.error ? Promise.reject(res.error) : Promise.resolve(res.data)
+        ),
+  })
+
   return (
-    <View className='bg-background flex-1 items-center justify-center'>
-      <Card>
-        <CardHeader className='flex flex-row items-center gap-2'>
-          <Avatar>
-            <AvatarImage source={{ uri: 'https://github.com/tiesen243.png' }} />
-            <AvatarFallback>T</AvatarFallback>
-          </Avatar>
+    <Container className='gap-6 px-0'>
+      <Select>
+        <SelectTrigger className='mx-4'>
+          <SelectValue placeholder='Select an option' />
+        </SelectTrigger>
 
-          <View className='space-y-1'>
-            <CardTitle>Card Title</CardTitle>
-            <CardDescription>
-              This is a description of the card.
-            </CardDescription>
-          </View>
-        </CardHeader>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Options</SelectLabel>
 
-        <CardContent>
-          <Text>This is the content of the card.</Text>
-          <Text>You can put any content you want here.</Text>
-        </CardContent>
-        <CardFooter className='justify-end'>
-          <Button>Action</Button>
-        </CardFooter>
-      </Card>
-    </View>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SelectItem key={i} value={`option-${i}`}>
+                Option {i + 1}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+
+          <SelectGroup>
+            <SelectLabel>More options</SelectLabel>
+
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SelectItem key={i} value={`more-option-${i}`}>
+                More option {i + 1}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+
+          <SelectGroup>
+            <SelectLabel>Even more options</SelectLabel>
+
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SelectItem key={i} value={`even-more-option-${i}`}>
+                Even more option {i + 1}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <FlatList
+        data={data}
+        refreshing={isRefetching}
+        onRefresh={refetch}
+        keyExtractor={(item) => item.id}
+        contentContainerClassName='px-4 gap-4 py-1'
+        renderItem={({ item }) => (
+          <Card>
+            <CardHeader>
+              <CardTitle>{item.title}</CardTitle>
+              <CardDescription>
+                {new Date(item.createdAt).toISOString()}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        )}
+      />
+    </Container>
   )
 }

@@ -10,9 +10,7 @@ import { cn } from '@/utils'
 interface TypographyProps
   extends
     React.ComponentProps<typeof Text>,
-    VariantProps<typeof typographyVariants> {
-  className?: string
-}
+    VariantProps<typeof typographyVariants> {}
 
 const ROLES = {
   h1: 'heading',
@@ -38,7 +36,6 @@ function Typography({ className, variant = 'p', ...props }: TypographyProps) {
   return (
     <Text
       data-slot='typography'
-      // @ts-expect-error - className is not a valid prop for Text, but we can use it to apply styles
       className={cn(typographyVariants({ variant }), context, className)}
       {...(variant && {
         role:

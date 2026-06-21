@@ -3,20 +3,25 @@ import '@/globals.css'
 import { createStaticNavigation, DefaultTheme } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState } from 'react'
+import { lazy, useState } from 'react'
 import { StatusBar } from 'react-native'
 import { hide } from 'react-native-bootsplash'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useCSSVariable, useUniwind } from 'uniwind'
 
-import Tabs from '@/app/(tabs)/__root'
+import * as Tabs from '@/app/(tabs)/__root'
 import { restoreTheme } from '@/lib/theme'
 
 const RootStack = createNativeStackNavigator({
   screens: {
     tabs: {
-      screen: Tabs,
-      options: { title: 'Haito' },
+      screen: Tabs.Root,
+      options: { title: 'Haito', headerRight: Tabs.HeaderRight },
+    },
+
+    login: {
+      screen: lazy(() => import('@/app/login')),
+      options: { title: 'Login' },
     },
   },
 })
@@ -68,4 +73,10 @@ export default function Root() {
       </SafeAreaProvider>
     </QueryClientProvider>
   )
+}
+
+declare module '@react-navigation/native' {
+  type RootStackType = typeof RootStack
+
+  interface RootNavigator extends RootStackType {}
 }

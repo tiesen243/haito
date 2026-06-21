@@ -1,9 +1,14 @@
 {
   "$schema": "./node_modules/turbo/schema.json",
+  "ui": "tui",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

@@ -14,5 +14,6 @@
     "lib": "@/",
     "hooks": "@/hooks",
     "utils": "@/utils"
-  }
+  },
+  "iconLibrary": "lucide-react"
 }

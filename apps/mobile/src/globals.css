@@ -1,2 +1,5 @@
 @import '@haito/ui/tailwind.css';
 @import 'uniwind';
+
+@source '../node_modules/@haito/ui/dist/components/**/*.mjs';
+@source './{app,components}/**/*.tsx';

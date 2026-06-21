@@ -9,9 +9,10 @@ export default defineConfig({
       files: ['**/*.tsx'],
       rules: {
         'node/global-require': 'off',
-        'unicorn/prefer-module': 'off',
-        'typescript/no-empty-object-type': 'off',
+        'promise/prefer-await-to-then': 'off',
         'typescript/no-empty-interface': 'off',
+        'typescript/no-empty-object-type': 'off',
+        'unicorn/prefer-module': 'off',
       },
     },
   ],

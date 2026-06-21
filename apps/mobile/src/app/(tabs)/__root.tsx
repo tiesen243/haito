@@ -1,4 +1,6 @@
+import { Button } from '@haito/ui/button'
 import { createNativeBottomTabNavigator } from '@react-navigation/bottom-tabs/unstable'
+import { useNavigation } from '@react-navigation/native'
 import { lazy } from 'react'
 
 const Tabs = createNativeBottomTabNavigator({
@@ -26,4 +28,14 @@ const Tabs = createNativeBottomTabNavigator({
   },
 })
 
-export default Tabs
+function HeaderRight() {
+  const navigation = useNavigation()
+
+  return (
+    <Button variant='outline' onPress={() => navigation.navigate('login')}>
+      Login
+    </Button>
+  )
+}
+
+export { Tabs as Root, HeaderRight }

@@ -28,7 +28,9 @@
     "order": "asc"
   },
 
-  "sortPackageJson": true,
+  "sortPackageJson": {
+    "sortScripts": true
+  },
 
   "sortTailwindcss": {
     "functions": ["clsx", "cva", "cn"]

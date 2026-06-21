@@ -5,8 +5,8 @@
   "main": "dist/app.mjs",
   "types": "dist/app.d.mts",
   "scripts": {
-    "dev": "bun run --hot src/server.ts",
     "build": "tsdown",
+    "dev": "bun run --hot src/server.ts",
     "start": "bun run dist/server.mjs"
   },
   "dependencies": {

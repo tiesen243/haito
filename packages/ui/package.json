@@ -6,12 +6,12 @@
   "exports": {
     ".": {
       "types": "./dist/utils.d.mts",
-      "default": "./dist/utils.d.mts"
+      "default": "./dist/utils.mjs"
     },
     "./*": {
       "react-native": {
-        "types": "./dist/components/*.native.d.mts",
-        "default": "./dist/components/*.native.mjs"
+        "types": "./dist/components/native/*.d.mts",
+        "default": "./dist/components/native/*.mjs"
       },
       "types": "./dist/components/*.d.mts",
       "default": "./dist/components/*.mjs"
@@ -29,6 +29,8 @@
     "@base-ui/react": "^1.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lucide-react": "^1.21.0",
+    "lucide-react-native": "^1.21.0",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {

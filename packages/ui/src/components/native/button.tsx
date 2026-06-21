@@ -3,17 +3,14 @@ import type { VariantProps } from 'class-variance-authority'
 import { cva } from 'class-variance-authority'
 import { TouchableOpacity } from 'react-native'
 
-import type { buttonVariants } from '@/components/button'
-
-import { Typography, TypographyContext } from '@/components/typography.native'
+import { buttonVariants } from '@/components/button'
+import { Typography, TypographyContext } from '@/components/native/typography'
 import { cn } from '@/utils'
 
 interface ButtonProps
   extends
     React.ComponentProps<typeof TouchableOpacity>,
-    VariantProps<typeof buttonVariants> {
-  className?: string
-}
+    VariantProps<typeof buttonVariants> {}
 
 const buttonTextVariants = cva('text-sm font-medium whitespace-nowrap', {
   variants: {
@@ -49,7 +46,6 @@ export function Button({
     <TypographyContext value={cn(buttonTextVariants({ variant, size }))}>
       <TouchableOpacity
         data-slot='button'
-        // @ts-expect-error - className is not a valid prop for Pressable, but we can use it to apply styles
         className={cn(buttonVariants({ variant, size }), className)}
         activeOpacity={activeOpacity}
         {...props}
