@@ -94,7 +94,7 @@ function Toaster({
           'data-[position*=top]:[--toast-calc-offset-y:calc(var(--toast-offset-y)+var(--toast-index)*var(--toast-gap)+var(--toast-swipe-movement-y))]',
           'data-[position*=bottom]:[--toast-calc-offset-y:calc(var(--toast-offset-y)*-1+var(--toast-index)*var(--toast-gap)*-1+var(--toast-swipe-movement-y))]',
           // Variants
-          'border bg-popover text-popover-foreground',
+          'bg-popover text-popover-foreground border',
           'data-[type=success]:border-green-600 data-[type=success]:bg-green-100 data-[type=success]:text-green-600 dark:data-[type=success]:border-green-400 dark:data-[type=success]:bg-green-950 dark:data-[type=success]:text-green-400',
           'data-[type=error]:border-red-600 data-[type=error]:bg-red-100 data-[type=error]:text-red-600 dark:data-[type=error]:border-red-400 dark:data-[type=error]:bg-red-950 dark:data-[type=error]:text-red-400',
           'data-[type=info]:border-blue-600 data-[type=info]:bg-blue-100 data-[type=info]:text-blue-600 dark:data-[type=info]:border-blue-400 dark:data-[type=info]:bg-blue-950 dark:data-[type=info]:text-blue-400',
@@ -136,7 +136,7 @@ function Toaster({
               {Icon && (
                 <Icon
                   data-slot='toast-icon'
-                  className='size-4 shrink-0 in-data-[type=loading]:animate-spin in-data-[type=loading]:text-muted-foreground'
+                  className='in-data-[type=loading]:text-muted-foreground size-4 shrink-0 in-data-[type=loading]:animate-spin'
                 />
               )}
 
@@ -148,7 +148,7 @@ function Toaster({
 
             <ToastPrimitive.Description
               data-slot='toast-description'
-              className='text-sm not-in-data-type:text-muted-foreground in-data-[type=loading]:text-muted-foreground'
+              className='not-in-data-type:text-muted-foreground in-data-[type=loading]:text-muted-foreground text-sm'
             />
           </div>
 

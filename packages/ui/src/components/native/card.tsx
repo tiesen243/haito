@@ -33,21 +33,29 @@ function Card({
 
 function CardHeader({
   className,
+  action,
+  children,
   ...props
-}: React.ComponentProps<typeof View>) {
+}: React.ComponentProps<typeof View> & {
+  action?: React.ReactNode
+}) {
   const { size } = React.use(CardContext)
 
   return (
     <View
       data-slot='card-header'
       className={cn(
-        'group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
+        'group/card-header @container/card-header flex flex-row items-start gap-1 rounded-t-xl',
         size === 'default' && 'px-4 [.border-b]:pb-4',
         size === 'sm' && 'px-3 [.border-b]:pb-3',
         className
       )}
       {...props}
-    />
+    >
+      <View className='flex flex-1 flex-col gap-1'>{children}</View>
+
+      {action && <CardAction>{action}</CardAction>}
+    </View>
   )
 }
 
@@ -91,10 +99,7 @@ function CardAction({
   return (
     <View
       data-slot='card-action'
-      className={cn(
-        'col-start-2 row-span-2 row-start-1 self-start justify-self-end',
-        className
-      )}
+      className={cn('self-start justify-self-end pr-1', className)}
       {...props}
     />
   )

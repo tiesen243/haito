@@ -30,13 +30,13 @@ const QUERY_KEY = ['posts'] as const
 
 export default function Index() {
   return (
-    <main className='container py-4'>
+    <main className='container flex flex-col gap-4 py-4'>
       <Typography variant='h1'>Welcome to Haito!</Typography>
 
       <CreatePostForm />
 
       <section className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        <Typography variant='h2' className='col-span-full mb-0'>
+        <Typography variant='h2' className='col-span-full'>
           Posts
         </Typography>
 
@@ -75,7 +75,7 @@ const CreatePostForm: React.FC = () => {
 
   return (
     <form id={form.formId} onSubmit={form.handleSubmit}>
-      <FieldSet className='bg-card text-card-foreground mt-4 rounded-lg border p-4'>
+      <FieldSet className='bg-card text-card-foreground rounded-lg border p-4'>
         <FieldTitle>Create Post</FieldTitle>
 
         <FieldGroup>

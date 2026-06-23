@@ -21,12 +21,15 @@
     "react": "catalog:react",
     "react-native": "catalog:react",
     "react-native-bootsplash": "^7.3.2",
+    "react-native-config": "^1.6.1",
     "react-native-keychain": "^10.0.0",
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.25.2",
-    "react-native-svg": "^15.15.5"
+    "react-native-svg": "^15.15.5",
+    "zod": "catalog:prod"
   },
   "devDependencies": {
+    "@babel/plugin-transform-export-namespace-from": "^8.0.1",
     "@babel/runtime": "^8.0.0",
     "@haito/oxlint": "workspace:*",
     "@haito/tsconfig": "workspace:*",

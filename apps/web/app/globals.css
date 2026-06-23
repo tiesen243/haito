@@ -1,3 +1,3 @@
 @import '@haito/ui/tailwind.css';
 
-@source '../../../packages/ui/dist/components/**/*.mjs';
+@source '../node_modules/@haito/ui/dist/components/**/*.mjs';

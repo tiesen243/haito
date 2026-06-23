@@ -1,8 +1,10 @@
+import groovy.json.JsonSlurper
+
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
-import groovy.json.JsonSlurper
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 def getPackageJsonVersion() {
     def packageJsonFile = new File("$rootDir/../package.json")

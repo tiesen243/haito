@@ -2,4 +2,5 @@
 @import 'uniwind';
 
 @source '../node_modules/@haito/ui/dist/components/**/*.mjs';
+@source not '../node_modules/@haito/ui/dist/components/toast.mjs';
 @source './{app,components}/**/*.tsx';

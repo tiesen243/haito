@@ -46,7 +46,11 @@ export function Button({
     <TypographyContext value={cn(buttonTextVariants({ variant, size }))}>
       <TouchableOpacity
         data-slot='button'
-        className={cn(buttonVariants({ variant, size }), className)}
+        className={cn(
+          buttonVariants({ variant, size }),
+          ['icon-xs', 'icon-sm'].includes(size ?? '') && 'rounded-md',
+          className
+        )}
         activeOpacity={activeOpacity}
         {...props}
       >
