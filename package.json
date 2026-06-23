@@ -5,14 +5,16 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "turbo run build",
     "format": "oxfmt --check ./apps ./packages",
     "format:fix": "oxfmt ./apps ./packages",
     "lint": "oxlint ./apps ./packages",
-    "lint:fix": "oxlint --fix ./apps ./packages"
+    "lint:fix": "oxlint --fix ./apps ./packages",
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
-    "oxfmt": "^0.55.0",
+    "oxfmt": "^0.56.0",
     "oxlint": "^1.70.0",
     "turbo": "^2.9.18"
   },
@@ -26,7 +28,7 @@
       "tsdown": "^0.22.3"
     },
     "prod": {
-      "@tanstack/react-query": "^5.101.0",
+      "@tanstack/react-query": "^5.101.1",
       "next-themes": "^0.4.6"
     },
     "react": {

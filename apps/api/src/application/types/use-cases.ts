@@ -14,4 +14,5 @@ export interface PostUseCases {
     OnePostModel.Input & CreatePostModel.Input,
     CreatePostModel.Output
   >
+  delete: UseCaseBase<OnePostModel.Input, OnePostModel.Output>
 }

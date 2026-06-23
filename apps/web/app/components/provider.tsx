@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 
 import { createQueryClient } from '@haito/lib/create-query-client'
+import { ToastProvider } from '@haito/ui/toast'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
 
@@ -22,7 +23,9 @@ export function Provider({
       disableTransitionOnChange
       enableSystem
     >
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>{children}</ToastProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   )
 }

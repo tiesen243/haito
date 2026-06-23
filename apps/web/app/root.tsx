@@ -2,6 +2,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
 import { Provider } from '@/components/provider'
 import globalsCss from '@/globals.css?url'
+import { createMetadata } from '@/lib/metadata'
 
 import type { Route } from './+types/root'
 
@@ -19,7 +20,9 @@ export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: globalsCss },
 ]
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export const meta: Route.MetaFunction = () => createMetadata()
+
+export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang='en' suppressHydrationWarning>
       <head>

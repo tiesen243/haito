@@ -1,4 +1,5 @@
 export interface ApiResponse<TData, TError = Record<string, unknown>> {
+  success: boolean
   message: string
   data: TData | null
   error: TError | null
@@ -82,10 +83,11 @@ export class Api {
         TData,
         TError
       >
-      if (!response.ok) return { message, data: null, error }
-      return { message, data, error: null }
+      if (!response.ok) return { success: false, message, data: null, error }
+      return { success: true, message, data, error: null }
     } catch (error) {
       return {
+        success: false,
         message: error instanceof Error ? error.message : 'Unknown error',
         data: null,
         error: null,

@@ -27,3 +27,7 @@ export const postRoute = (useCases: PostUseCases) =>
         body: CreatePostModel.input,
       }
     )
+
+    .delete('/:id', ({ params }) => useCases.delete.execute(params), {
+      params: OnePostModel.input,
+    })

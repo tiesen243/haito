@@ -11,6 +11,7 @@ export const createQueryClient = () =>
     defaultOptions: {
       queries: {
         staleTime: 1000 * 60 * 10, // 10 minutes
+        retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 1000 * 60),
       },
       mutations: {
         gcTime: 1000 * 60 * 5, // 5 minutes
