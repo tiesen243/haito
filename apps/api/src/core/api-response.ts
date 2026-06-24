@@ -1,5 +1,3 @@
-import { EntityBase } from '@/shared/bases/entity.base'
-
 // oxlint-disable-next-line unicorn/custom-error-definition
 export class ApiResponse<
   TData,
@@ -26,13 +24,11 @@ export class ApiResponse<
     )
       return Response.redirect(this.data.url, this.status)
 
-    const data =
-      this.data instanceof EntityBase ? this.data.mapToJson() : this.data
     return Response.json(
       {
         status: this.status,
         message: this.message,
-        data: this.status < 400 ? data : null,
+        data: this.status < 400 ? this.data : null,
         error: this.status >= 400 ? this.error : null,
         timestamp: this.timestamp,
       },

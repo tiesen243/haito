@@ -1,14 +1,15 @@
 import { logger } from '@sentry/elysia'
 
-import { ApiResponse } from '@/shared/api-response'
-import { createElysia } from '@/shared/create-elysia'
+import { ApiResponse } from '@/core/api-response'
+import { createElysia } from '@/core/create-elysia'
 
 export const loggerPlugin = createElysia({
   name: 'plugin.logger',
 })
   .onBeforeHandle(({ store, request, path, query, body }) => {
-    const requestFrom = request.headers.get('x-client') ?? 'unknown'
+    if (path === '/favicon.ico') return
 
+    const requestFrom = request.headers.get('X-Requested-With') ?? 'unknown'
     logger.info(`[${request.method}] ${path} from ${requestFrom}`, {
       requestId: store.context.requestId,
       userId: store.context.session?.userId ?? 'anonymous',
