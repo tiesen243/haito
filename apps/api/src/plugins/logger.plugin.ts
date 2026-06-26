@@ -3,11 +3,13 @@ import { logger } from '@sentry/elysia'
 import { ApiResponse } from '@/core/api-response'
 import { createElysia } from '@/core/create-elysia'
 
+const IGNORED_PATHS = new Set(['/favicon.ico', '/openapi', '/openapi/json'])
+
 export const loggerPlugin = createElysia({
   name: 'plugin.logger',
 })
   .onBeforeHandle(({ store, request, path, query, body }) => {
-    if (path === '/favicon.ico') return
+    if (IGNORED_PATHS.has(path)) return
 
     const requestFrom = request.headers.get('X-Requested-With') ?? 'unknown'
     logger.info(`[${request.method}] ${path} from ${requestFrom}`, {
@@ -19,8 +21,15 @@ export const loggerPlugin = createElysia({
 
   .error({ ApiResponse })
   .onError(({ path, store, code, error }) => {
-    if (path === '/favicon.ico' || code === 'PARSE' || code === 'VALIDATION')
-      return
+    if (IGNORED_PATHS.has(path) || code === 'PARSE') return
+
+    if (code === 'VALIDATION') {
+      const details = error.detail(error.message)
+      if (typeof details === 'string') return
+
+      return new ApiResponse(422, 'Validation Error', null, details.errors)
+    }
+
     let status = typeof code === 'number' ? code : 500,
       // oxlint-disable-next-line sort-vars
       details = null,
@@ -31,6 +40,7 @@ export const loggerPlugin = createElysia({
         ;({ status, message } = error)
         details = error.error
         break
+      case 'UNKNOWN':
       case 'NOT_FOUND':
       case 'INTERNAL_SERVER_ERROR':
         if (code === 'NOT_FOUND') status = 404

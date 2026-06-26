@@ -1,32 +1,57 @@
+import { openapi } from '@elysia/openapi'
+import { toJSONSchema } from 'zod'
+
+import pkgJson from '@/../package.json'
 import { ApiResponse } from '@/core/api-response'
 import { createElysia } from '@/core/create-elysia'
-// Modules
+import { PostInfrastructure } from '@/modules/post/infrastructure/post.infrastructure'
 import { PostModule } from '@/modules/post/post.module'
-// Plugins
 import { contextPlugin } from '@/plugins/context.plugin'
 import { corsPlugin } from '@/plugins/cors.plugin'
 import { loggerPlugin } from '@/plugins/logger.plugin'
 
+// oxlint-disable-next-line unicorn/no-static-only-class typescript/no-extraneous-class
 export class AppModule {
-  private constructor(
-    private readonly plugins = [contextPlugin, corsPlugin, loggerPlugin],
-    private readonly modules = [PostModule]
-  ) {}
-
-  public static create(): Promise<ReturnType<typeof createElysia>> {
-    const appModule = new AppModule()
-
-    const app = createElysia({
-      name: 'app',
-    })
-
-    for (const plugin of appModule.plugins) app.use(plugin)
-    for (const module of appModule.modules) app.use(module.create())
-
-    app.all('*', () =>
-      ApiResponse.notFound('The requested resource was not found.')
+  static register(config: AppModule.Config) {
+    const postModule = PostModule.withInfrasctructure(
+      PostInfrastructure.use(config.persistanceDriver)
     )
 
-    return Promise.resolve(app.compile())
+    return createElysia()
+      .use(corsPlugin)
+      .use(contextPlugin)
+      .use(loggerPlugin)
+      .use(
+        openapi({
+          documentation: {
+            info: { title: pkgJson.name, version: pkgJson.version },
+          },
+          mapJsonSchema: { zod: toJSONSchema },
+        })
+      )
+
+      .use(postModule.register())
+      .get('/', () =>
+        ApiResponse.ok(`Welcome to ${pkgJson.name}`, {
+          version: pkgJson.version,
+        })
+      )
+      .get('/health', () =>
+        ApiResponse.ok('OK', {
+          status: 'healthy',
+          cpu: process.cpuUsage(),
+          memory: process.memoryUsage(),
+          uptime: process.uptime(),
+        })
+      )
+      .all('*', () =>
+        ApiResponse.notFound('The requested resource was not found')
+      )
+  }
+}
+
+export namespace AppModule {
+  export interface Config {
+    persistanceDriver: 'memory' | 'drizzle'
   }
 }

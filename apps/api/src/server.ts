@@ -17,7 +17,12 @@ init({
   },
 })
 
-const app = withElysia(await AppModule.create())
+const app = withElysia(
+  AppModule.register({
+    persistanceDriver: 'memory',
+  })
+)
+
 export default {
   fetch: app.fetch,
 }

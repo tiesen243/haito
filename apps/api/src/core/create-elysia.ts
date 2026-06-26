@@ -14,7 +14,7 @@ export interface ElysiaContext {
 }
 
 export const createElysia = <TPrefix extends string>(
-  options: ElysiaConfig<TPrefix>
+  options: ElysiaConfig<TPrefix> = {}
 ) =>
   new Elysia({
     ...options,

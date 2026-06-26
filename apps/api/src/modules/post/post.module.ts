@@ -1,20 +1,48 @@
-import type { AnyElysia } from 'elysia'
+import type { AnyClass } from '@/core/types'
+import type { PostRepository } from '@/modules/post/domain/post.repository'
 
 import { createElysia } from '@/core/create-elysia'
-import { PostService } from '@/modules/post/application/post.service'
-import { createPostController } from '@/modules/post/presentation/post.controller'
+import { CreateDto } from '@/modules/post/application/dtos/create.dto'
+import { GetOneDto } from '@/modules/post/application/dtos/get-one.dto'
+import { PostController } from '@/modules/post/presenters/post.controller'
 
 export class PostModule {
-  protected readonly name = 'module.post'
+  constructor(private infraModule: PostRepository) {}
 
-  public static create(): AnyElysia {
-    const module = new PostModule()
+  static withInfrasctructure(infraModule: AnyClass) {
+    const infra = new infraModule()
+    return new PostModule(infra)
+  }
 
-    const service = new PostService()
-    const postController = createPostController(service)
+  public register = () => {
+    const controller = new PostController(this.infraModule)
 
     return createElysia({
-      name: module.name,
-    }).use(postController)
+      name: 'module.post',
+      prefix: '/api/v1/posts',
+      tags: ['posts'],
+    })
+      .get('/', () => controller.getAll())
+
+      .get('/:id', ({ params }) => controller.getOne({ id: params.id }), {
+        params: GetOneDto.input,
+      })
+
+      .post('/', ({ body }) => controller.create(body), {
+        body: CreateDto.input,
+      })
+
+      .put(
+        '/:id',
+        ({ params, body }) => controller.update({ id: params.id, ...body }),
+        {
+          params: GetOneDto.input,
+          body: CreateDto.input,
+        }
+      )
+
+      .delete('/:id', ({ params }) => controller.delete({ id: params.id }), {
+        params: GetOneDto.input,
+      })
   }
 }

@@ -5,10 +5,12 @@ export default defineConfig({
   extends: [core],
   overrides: [
     {
-      files: ['**/*.repository.ts'],
+      files: ['**/*.ts'],
       rules: {
-        'typescript/no-empty-interface': 'off',
-        'typescript/no-empty-object-type': 'off',
+        'typescript/no-extraneous-class': [
+          'error',
+          { allowWithDecorator: true },
+        ],
       },
     },
   ],

@@ -32,21 +32,6 @@ export abstract class EntityBase<TProps, TPk extends string | number = string> {
     return entity
   }
 
-  get id(): TPk {
-    return this.props.id
-  }
-
-  get createdAt(): Date {
-    return this.props.createdAt
-  }
-
-  get updatedAt(): Date {
-    return this.props.updatedAt
-  }
-  set updatedAt(value: Date) {
-    this.props.updatedAt = value
-  }
-
   public clone(
     overrides: Partial<TProps & DefaultEntityProps<TPk>> = {}
   ): this {
@@ -71,4 +56,19 @@ export abstract class EntityBase<TProps, TPk extends string | number = string> {
   }
 
   protected abstract validate(): void
+
+  get id(): TPk {
+    return this.props.id
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt
+  }
+
+  get updatedAt(): Date {
+    return this.props.updatedAt
+  }
+  set updatedAt(value: Date) {
+    this.props.updatedAt = value
+  }
 }
