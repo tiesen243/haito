@@ -14,14 +14,17 @@
     "@elysia/openapi": "^1.4.15",
     "@haito/lib": "workspace:*",
     "@haito/validators": "workspace:*",
-    "@sentry/elysia": "^10.60.0",
+    "@sentry/elysia": "^10.62.0",
+    "drizzle-orm": "^0.45.2",
+    "effect": "^3.21.4",
     "elysia": "^1.4.29",
-    "reflect-metadata": "^0.2.2",
+    "postgres": "^3.4.9",
     "zod": "catalog:prod"
   },
   "devDependencies": {
     "@haito/oxlint": "workspace:*",
     "@haito/tsconfig": "workspace:*",
+    "drizzle-kit": "^0.31.10",
     "tsdown": "catalog:dev",
     "typescript": "catalog:dev"
   }
