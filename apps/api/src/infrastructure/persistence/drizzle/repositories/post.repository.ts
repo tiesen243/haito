@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
-import { Effect, Layer } from 'effect'
+import * as Effect from 'effect/Effect'
+import * as Layer from 'effect/Layer'
 
 import { Post } from '@/domain/entities/post.entity'
 import { PostRepository } from '@/domain/repositories/post.repository'

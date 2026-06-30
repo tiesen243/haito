@@ -1,16 +1,23 @@
 import { Data } from 'effect'
 
-interface ResponseProps {
+interface ResponseProps<TData, TError> {
   status: number
   message: string
-  data?: unknown | null
-  error?: unknown | null
+  data?: TData | null
+  error?: TError | null
 }
 
-export class ApiResponse extends Data.TaggedError('ApiResponse')<
-  ResponseProps & { timestamp: Date }
+export class ApiResponse<
+  TData = unknown,
+  TError = unknown,
+> extends Data.TaggedError('ApiResponse')<
+  ResponseProps<TData, TError> & { timestamp: Date }
 > {
-  constructor({ data = null, error = null, ...props }: ResponseProps) {
+  constructor({
+    data = null,
+    error = null,
+    ...props
+  }: ResponseProps<TData, TError>) {
     super({ ...props, data, error, timestamp: new Date() })
   }
 

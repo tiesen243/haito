@@ -1,6 +1,6 @@
-import { Effect } from 'effect'
+import * as Effect from 'effect/Effect'
 
-import type { CreatePostDto } from '@/application/dtos/post.dto'
+import type { CreatePostDto, GetPostDto } from '@/application/dtos/post.dto'
 
 import { Post } from '@/domain/entities/post.entity'
 import { PostRepository } from '@/domain/repositories/post.repository'
@@ -14,36 +14,34 @@ export const getPostsUseCase = () =>
     return yield* ApiResponse.ok('Posts fetched successfully', posts)
   })
 
-export const getPostUseCase = (id: Post['id']) =>
+export const getPostUseCase = (input: GetPostDto.Input) =>
   Effect.gen(function* getPostUseCaseFunc() {
     const postRepo = yield* PostRepository
-    const post = yield* postRepo.one(id)
+    const post = yield* postRepo.one(input.id)
 
     if (!post) return yield* ApiResponse.notFound('Post not found')
 
     return yield* ApiResponse.ok('Post fetched successfully', post)
   })
 
-export const createPostUseCase = (
-  input: CreatePostDto.Input
-): Effect.Effect<CreatePostDto.Output, Error, PostRepository> =>
+export const createPostUseCase = (input: CreatePostDto.Input) =>
   Effect.gen(function* createPostUseCaseFunc() {
     const postRepo = yield* PostRepository
 
     const newPost = Post.create(input)
     yield* postRepo.save(newPost)
 
-    return yield* ApiResponse.created('Post created successfully', newPost)
+    return ApiResponse.created('Post created successfully', newPost)
   })
 
-export const deletePostUseCase = (id: Post['id']) =>
+export const deletePostUseCase = (input: GetPostDto.Input) =>
   Effect.gen(function* deletePostUseCaseFunc() {
     const postRepo = yield* PostRepository
 
-    const post = yield* postRepo.one(id)
+    const post = yield* postRepo.one(input.id)
     if (!post) return yield* ApiResponse.notFound('Post not found')
 
-    yield* postRepo.delete(id)
+    yield* postRepo.delete(input.id)
 
-    return yield* ApiResponse.ok('Post deleted successfully')
+    return ApiResponse.ok('Post deleted successfully')
   })

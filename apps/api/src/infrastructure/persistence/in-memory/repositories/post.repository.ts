@@ -1,4 +1,6 @@
-import { Effect, Layer, Ref } from 'effect'
+import * as Effect from 'effect/Effect'
+import * as Layer from 'effect/Layer'
+import * as Ref from 'effect/Ref'
 
 import type { Post } from '@/domain/entities/post.entity'
 

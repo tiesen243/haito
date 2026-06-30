@@ -1,6 +1,6 @@
 import Elysia from 'elysia'
 
-import { CreatePostDto } from '@/application/dtos/post.dto'
+import { CreatePostDto, GetPostDto } from '@/application/dtos/post.dto'
 import {
   createPostUseCase,
   deletePostUseCase,
@@ -16,10 +16,14 @@ export const postController = new Elysia({
 
   .get('/', () => getPostsUseCase())
 
-  .get('/:id', ({ params: { id } }) => getPostUseCase(id))
+  .get('/:id', ({ params: { id } }) => getPostUseCase({ id }), {
+    params: GetPostDto.input,
+  })
 
   .post('/', ({ body }) => createPostUseCase(body), {
     body: CreatePostDto.input,
   })
 
-  .delete('/:id', ({ params: { id } }) => deletePostUseCase(id))
+  .delete('/:id', ({ params: { id } }) => deletePostUseCase({ id }), {
+    params: GetPostDto.input,
+  })

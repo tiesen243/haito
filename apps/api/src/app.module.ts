@@ -23,6 +23,7 @@ export class AppModule {
 
     return new Elysia({
       name: 'module.app',
+      aot: true,
     }).onAfterHandle(({ responseValue }) => {
       if (Effect.isEffect(responseValue))
         return runProgram(responseValue as never)

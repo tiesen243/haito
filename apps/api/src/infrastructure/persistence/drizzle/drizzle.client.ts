@@ -1,6 +1,8 @@
 // oxlint-disable promise/prefer-await-to-callbacks
 import { drizzle } from 'drizzle-orm/postgres-js'
-import { Context, Effect, Layer } from 'effect'
+import * as Context from 'effect/Context'
+import * as Effect from 'effect/Effect'
+import * as Layer from 'effect/Layer'
 import postgres from 'postgres'
 
 import { ApiResponse } from '@/shared/api-response'

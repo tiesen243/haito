@@ -17,6 +17,14 @@ export namespace GetPostsDto {
   export type Output = z.infer<typeof output>
 }
 
+export namespace GetPostDto {
+  export const input = postSchema.pick({ id: true })
+  export type Input = z.infer<typeof input>
+
+  export const output = postSchema
+  export type Output = z.infer<typeof output>
+}
+
 export namespace CreatePostDto {
   export const input = z.object({
     title: z.string().min(4).max(100),
