@@ -18,6 +18,12 @@ export const PostRepositoryInMemory = Layer.effect(
 
       save: (post: Post) =>
         Ref.update(store, (dict) => ({ ...dict, [post.id]: post })),
+
+      delete: (id: Post['id']) =>
+        Ref.update(store, (dict) => {
+          const { [id]: _, ...rest } = dict
+          return rest
+        }),
     }
   })
 )

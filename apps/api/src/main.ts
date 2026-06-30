@@ -1,35 +1,23 @@
-import type { Effect } from 'effect'
+import { openapi } from '@elysia/openapi'
 
-import { Layer, ManagedRuntime } from 'effect'
-import Elysia from 'elysia'
+import { AppModule } from '@/app.module'
+import { homeController } from '@/presentation/http/home.controller'
+import { postController } from '@/presentation/http/post.controller'
+import { cors } from '@/shared/plugins/cors'
+import { errorHandle } from '@/shared/plugins/error-handle'
 
-import { DrizzleClient } from '@/infrastructure/persistence/drizzle'
-import { PostRepositoryDrizzle } from '@/infrastructure/persistence/drizzle/repositories/post.repository'
-import { postController } from '@/presentation/post.controller'
-import { ApiResponse } from '@/shared/api-response'
+const app = AppModule.create({
+  persistenceDriver: 'drizzle',
+})
+  .use(cors)
+  .use(errorHandle)
+  .use(openapi())
 
-function main() {
-  const layer = Layer.mergeAll(PostRepositoryDrizzle).pipe(
-    Layer.provide(DrizzleClient.live)
-  )
-  const runtime = ManagedRuntime.make(layer)
+  .use(homeController)
+  .use(postController)
 
-  const server = new Elysia()
-    .derive(() => {
-      const run = async <A, E>(effect: Effect.Effect<A, E, never>) => {
-        const res = await runtime.runPromiseExit(effect)
-        if (res._tag === 'Failure')
-          throw ApiResponse.internalServerError('Internal Server Error')
-        return ApiResponse.ok('Success', res.value)
-      }
-
-      return { run }
-    })
-    .use(postController)
-
-  return server.compile()
-}
+  .compile()
 
 export default {
-  fetch: main().fetch,
+  fetch: app.fetch,
 }

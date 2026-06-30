@@ -1,62 +1,52 @@
-// oxlint-disable-next-line unicorn/custom-error-definition
-export class ApiResponse<
-  TData,
-  TError = Record<string, unknown>,
-> extends Error {
-  constructor(
-    public status: number,
-    message: string,
-    public data: TData,
-    public error: TError | null = null,
-    public timestamp: string = new Date().toISOString()
-  ) {
-    super(message)
-    this.name = 'ApiResponse'
+import { Data } from 'effect'
+
+interface ResponseProps {
+  status: number
+  message: string
+  data?: unknown | null
+  error?: unknown | null
+}
+
+export class ApiResponse extends Data.TaggedError('ApiResponse')<
+  ResponseProps & { timestamp: Date }
+> {
+  constructor({ data = null, error = null, ...props }: ResponseProps) {
+    super({ ...props, data, error, timestamp: new Date() })
   }
 
-  public toResponse() {
-    if (
-      this.status === 302 &&
-      this.data &&
-      typeof this.data === 'object' &&
-      'url' in this.data &&
-      typeof this.data.url === 'string'
-    )
-      return Response.redirect(this.data.url, this.status)
-
-    return Response.json(
-      {
-        status: this.status,
-        message: this.message,
-        data: this.status < 400 ? this.data : null,
-        error: this.status >= 400 ? this.error : null,
-        timestamp: this.timestamp,
-      },
-      { status: this.status }
-    )
+  static ok<TData>(message: string, data?: TData) {
+    return new ApiResponse({ status: 200, message, data })
   }
 
-  static ok<TData>(message: string, data: TData) {
-    return new ApiResponse(200, message, data)
+  static created<TData>(message: string, data?: TData) {
+    return new ApiResponse({ status: 201, message, data })
   }
 
-  static created<TData>(message: string, data: TData) {
-    return new ApiResponse(201, message, data)
-  }
-
-  static redirect(message: string, url: string) {
-    return new ApiResponse(302, message, { url })
+  static redirect(message: string) {
+    return new ApiResponse({ status: 302, message })
   }
 
   static badRequest<TError>(message: string, error?: TError) {
-    return new ApiResponse(400, message, null, error)
+    return new ApiResponse({ status: 400, message, error })
+  }
+
+  static unauthorized<TError>(message: string, error?: TError) {
+    return new ApiResponse({ status: 401, message, error })
+  }
+
+  static forbidden<TError>(message: string, error?: TError) {
+    return new ApiResponse({ status: 403, message, error })
   }
 
   static notFound<TError>(message: string, error?: TError) {
-    return new ApiResponse(404, message, null, error)
+    return new ApiResponse({ status: 404, message, error })
   }
 
   static internalServerError<TError>(message: string, error?: TError) {
-    return new ApiResponse(500, message, null, error)
+    return new ApiResponse({ status: 500, message, error })
+  }
+
+  toResponse() {
+    return Response.json(this, { status: this.status })
   }
 }

@@ -3,8 +3,8 @@ import { Effect, Layer } from 'effect'
 
 import { Post } from '@/domain/entities/post.entity'
 import { PostRepository } from '@/domain/repositories/post.repository'
-import { DrizzleClient } from '@/infrastructure/persistence/drizzle'
-import { posts } from '@/infrastructure/persistence/drizzle/schema'
+import { DrizzleClient } from '@/infrastructure/persistence/drizzle/drizzle.client'
+import { posts } from '@/infrastructure/persistence/drizzle/drizzle.schema'
 
 export const PostRepositoryDrizzle = Layer.effect(
   PostRepository,
@@ -29,6 +29,9 @@ export const PostRepositoryDrizzle = Layer.effect(
 
       save: (post: Post) =>
         db.query((client) => client.insert(posts).values(post)),
+
+      delete: (id: Post['id']) =>
+        db.query((client) => client.delete(posts).where(eq(posts.id, id))),
     }
   })
 )

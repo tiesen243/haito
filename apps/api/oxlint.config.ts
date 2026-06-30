@@ -5,12 +5,10 @@ export default defineConfig({
   extends: [core],
   overrides: [
     {
-      files: ['**/*.ts'],
+      files: ['**/*.module.ts'],
       rules: {
-        'typescript/no-extraneous-class': [
-          'error',
-          { allowWithDecorator: true },
-        ],
+        'unicorn/no-static-only-class': 'off',
+        'typescript/no-extraneous-class': 'off',
       },
     },
   ],

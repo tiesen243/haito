@@ -24,6 +24,6 @@ export namespace CreatePostDto {
   })
   export type Input = z.infer<typeof input>
 
-  export const output = z.void()
+  export const output = postSchema
   export type Output = z.infer<typeof output>
 }
