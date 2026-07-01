@@ -8,7 +8,7 @@ import { cors } from '@/shared/plugins/cors'
 import { errorHandle } from '@/shared/plugins/error-handle'
 
 const app = AppModule.create({
-  persistenceDriver: 'drizzle',
+  persistenceDriver: 'in-memory',
 })
   // Plugins
   .use(cors)
