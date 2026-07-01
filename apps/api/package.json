@@ -4,8 +4,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/main.d.mts",
-      "default": "./dist/main.mjs"
+      "types": "./dist/server.d.mts",
+      "default": "./dist/server.mjs"
     },
     "./dtos/*": {
       "types": "./dist/application/dtos/*.dto.d.mts",
