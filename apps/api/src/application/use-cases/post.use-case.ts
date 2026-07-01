@@ -11,7 +11,7 @@ export const getPostsUseCase = () =>
     const postRepo = yield* PostRepository
     const posts = yield* postRepo.find()
 
-    return yield* ApiResponse.ok('Posts fetched successfully', posts)
+    return ApiResponse.ok('Posts fetched successfully', posts)
   })
 
 export const getPostUseCase = (input: GetPostDto.Input) =>
@@ -21,7 +21,7 @@ export const getPostUseCase = (input: GetPostDto.Input) =>
 
     if (!post) return yield* ApiResponse.notFound('Post not found')
 
-    return yield* ApiResponse.ok('Post fetched successfully', post)
+    return ApiResponse.ok('Post fetched successfully', post)
   })
 
 export const createPostUseCase = (input: CreatePostDto.Input) =>
