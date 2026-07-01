@@ -1,47 +1,105 @@
-import * as Effect from 'effect/Effect'
-
-import type { CreatePostDto, GetPostDto } from '@/application/dtos/post.dto'
+import type {
+  CreatePostDto,
+  GetPostDto,
+  GetPostsDto,
+} from '@/application/dtos/post.dto'
 
 import { Post } from '@/domain/entities/post.entity'
 import { PostRepository } from '@/domain/repositories/post.repository'
-import { ApiResponse } from '@/shared/api-response'
+import { HttpError } from '@/shared/http-error'
+import { createUseCase } from '@/shared/lib/create-use-case'
 
-export const getPostsUseCase = () =>
-  Effect.gen(function* getPostsUseCaseFunc() {
-    const postRepo = yield* PostRepository
-    const posts = yield* postRepo.find()
+export const getPostsUseCase = createUseCase<
+  GetPostsDto.Input,
+  GetPostsDto.Output
+>(
+  (input) =>
+    function* getPostsUseCaseFunc() {
+      const postRepo = yield* PostRepository
 
-    return ApiResponse.ok('Posts fetched successfully', posts)
-  })
+      const { query, page, limit: pageSize } = input
+      const offset = (page - 1) * pageSize
 
-export const getPostUseCase = (input: GetPostDto.Input) =>
-  Effect.gen(function* getPostUseCaseFunc() {
-    const postRepo = yield* PostRepository
-    const post = yield* postRepo.one(input.id)
+      const posts = yield* postRepo.find(
+        query ? [{ title: query }] : [],
+        { updatedAt: 'desc' },
+        { limit: pageSize, offset }
+      )
 
-    if (!post) return yield* ApiResponse.notFound('Post not found')
+      const total = yield* postRepo.count(query ? [{ title: query }] : [])
+      const totalPages = Math.ceil(total / pageSize)
 
-    return ApiResponse.ok('Post fetched successfully', post)
-  })
+      return {
+        posts,
+        meta: { page, pageSize, total, totalPages },
+      }
+    }
+)
 
-export const createPostUseCase = (input: CreatePostDto.Input) =>
-  Effect.gen(function* createPostUseCaseFunc() {
-    const postRepo = yield* PostRepository
+export const getPostUseCase = createUseCase<
+  GetPostDto.Input,
+  GetPostDto.Output
+>(
+  (input) =>
+    function* getPostUseCaseFunc() {
+      const postRepo = yield* PostRepository
+      const post = yield* postRepo.one(input.id)
 
-    const newPost = Post.create(input)
-    yield* postRepo.save(newPost)
+      if (!post) return yield* HttpError.notFound('Post not found')
+      return post
+    }
+)
 
-    return ApiResponse.created('Post created successfully', newPost)
-  })
+export const createPostUseCase = createUseCase<
+  CreatePostDto.Input,
+  CreatePostDto.Output,
+  PostRepository
+>(
+  (input) =>
+    function* createPostUseCaseFunc() {
+      const postRepo = yield* PostRepository
 
-export const deletePostUseCase = (input: GetPostDto.Input) =>
-  Effect.gen(function* deletePostUseCaseFunc() {
-    const postRepo = yield* PostRepository
+      const newPost = Post.create(input)
+      yield* postRepo.save(newPost)
 
-    const post = yield* postRepo.one(input.id)
-    if (!post) return yield* ApiResponse.notFound('Post not found')
+      return newPost
+    }
+)
 
-    yield* postRepo.delete(input.id)
+export const updatePostUseCase = createUseCase<
+  GetPostDto.Input & Partial<CreatePostDto.Input>,
+  GetPostDto.Output
+>(
+  (input) =>
+    function* updatePostUseCaseFunc() {
+      const postRepo = yield* PostRepository
 
-    return ApiResponse.ok('Post deleted successfully')
-  })
+      const post = yield* postRepo.one(input.id)
+      if (!post) return yield* HttpError.notFound('Post not found')
+
+      const updatedPost = post.clone({
+        title: input.title ?? post.title,
+        content: input.content ?? post.content,
+      })
+      yield* postRepo.save(updatedPost)
+
+      return updatedPost
+    }
+)
+
+export const deletePostUseCase = createUseCase<
+  GetPostDto.Input,
+  GetPostDto.Output
+>(
+  (input) =>
+    function* deletePostUseCaseFunc() {
+      const postRepo = yield* PostRepository
+
+      const post = yield* postRepo.one(input.id)
+      if (!post) return yield* HttpError.notFound('Post not found')
+
+      yield* postRepo.delete(input.id)
+
+      return post
+    }
+)

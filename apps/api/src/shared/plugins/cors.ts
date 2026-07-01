@@ -1,6 +1,6 @@
 import Elysia from 'elysia'
 
-import { env } from '@/shared/env'
+import { env } from '@/shared/lib/env'
 
 export const cors = new Elysia({
   name: 'plugin.cors',

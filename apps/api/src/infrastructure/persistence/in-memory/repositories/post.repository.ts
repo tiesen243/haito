@@ -12,8 +12,11 @@ export const PostRepositoryInMemory = Layer.effect(
     const store = yield* Ref.make<Record<string, Post>>({})
 
     return {
-      find: () =>
-        Ref.get(store).pipe(Effect.map((dict) => Object.values(dict))),
+      find: (
+        _criterias: Partial<Post>[] = [],
+        _sort: Partial<Record<keyof Post, 'asc' | 'desc'>> = {},
+        _options: { limit?: number; offset?: number } = {}
+      ) => Ref.get(store).pipe(Effect.map((dict) => Object.values(dict))),
 
       one: (id: Post['id']) =>
         Ref.get(store).pipe(Effect.map((dict) => dict[id] ?? null)),
@@ -26,6 +29,9 @@ export const PostRepositoryInMemory = Layer.effect(
           const { [id]: _, ...rest } = dict
           return rest
         }),
+
+      count: (_criterias: Partial<Post>[] = []) =>
+        Ref.get(store).pipe(Effect.map((dict) => Object.keys(dict).length)),
     }
   })
 )

@@ -1,6 +1,7 @@
 import { openapi } from '@elysia/openapi'
 import { toJSONSchema } from 'zod'
 
+import pkgJson from '@/../package.json' with { type: 'json' }
 import { AppModule } from '@/app.module'
 import { homeController } from '@/presentation/http/home.controller'
 import { postController } from '@/presentation/http/post.controller'
@@ -18,8 +19,8 @@ const app = AppModule.create({
       path: '/docs',
       documentation: {
         info: {
-          title: `${process.env.npm_package_name} Documentation`,
-          version: process.env.npm_package_version ?? '1.0.0',
+          title: `${pkgJson.name} Documentation`,
+          version: pkgJson.version ?? '1.0.0',
         },
       },
       mapJsonSchema: {

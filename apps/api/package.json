@@ -2,8 +2,16 @@
   "name": "@haito/api",
   "version": "0.0.0",
   "type": "module",
-  "main": "dist/main.mjs",
-  "types": "dist/main.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/main.d.mts",
+      "default": "./dist/main.mjs"
+    },
+    "./dtos/*": {
+      "types": "./dist/application/dtos/*.dto.d.mts",
+      "default": "./dist/application/dtos/*.dto.mjs"
+    }
+  },
   "scripts": {
     "build": "tsdown",
     "db:generate": "drizzle-kit generate --config ./src/infrastructure/persistence/drizzle/drizzle.config.ts",
@@ -15,8 +23,6 @@
   "dependencies": {
     "@elysia/openapi": "^1.4.15",
     "@haito/lib": "workspace:*",
-    "@haito/validators": "workspace:*",
-    "@sentry/elysia": "^10.62.0",
     "drizzle-orm": "^0.45.2",
     "effect": "^3.21.4",
     "elysia": "^1.4.29",

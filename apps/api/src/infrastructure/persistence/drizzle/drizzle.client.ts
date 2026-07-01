@@ -5,8 +5,8 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import postgres from 'postgres'
 
-import { ApiResponse } from '@/shared/api-response'
-import { env } from '@/shared/env'
+import { HttpError } from '@/shared/http-error'
+import { env } from '@/shared/lib/env'
 
 type DrizzleInstance = ReturnType<typeof drizzle>
 
@@ -16,7 +16,7 @@ export class DrizzleClient extends Context.Tag('DrizzleClient')<
     client: DrizzleInstance
     readonly query: <T>(
       cb: (client: DrizzleInstance) => Promise<T>
-    ) => Effect.Effect<T, ApiResponse, never>
+    ) => Effect.Effect<T, HttpError, never>
   }
 >() {
   static live = Layer.effect(
@@ -38,7 +38,7 @@ export class DrizzleClient extends Context.Tag('DrizzleClient')<
           Effect.tryPromise({
             try: (_) => cb(db),
             catch: (error) =>
-              ApiResponse.internalServerError('Database query failed', error),
+              HttpError.internalServerError('Database query failed', error),
           }),
       }
     })

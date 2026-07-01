@@ -1,6 +1,6 @@
 import Elysia from 'elysia'
 
-import { ApiResponse } from '@/shared/api-response'
+import { HttpError } from '@/shared/http-error'
 
 export const errorHandle = new Elysia({
   name: 'plugin.error-handle',
@@ -10,16 +10,16 @@ export const errorHandle = new Elysia({
 
     switch (code) {
       case 'NOT_FOUND':
-        return ApiResponse.notFound('The requested resource was not found')
+        return HttpError.notFound('The requested resource was not found')
       case 'VALIDATION':
-        return ApiResponse.badRequest('Validation error', error.all)
+        return HttpError.badRequest('Validation error', error.all)
       case 'UNKNOWN':
-        return new ApiResponse({
+        return new HttpError({
           status: typeof code === 'number' ? code : 500,
           message: error.message,
         })
       default:
-        return ApiResponse.internalServerError('Unknown error', error)
+        return HttpError.internalServerError('Unknown error', error)
     }
   })
   .as('scoped')

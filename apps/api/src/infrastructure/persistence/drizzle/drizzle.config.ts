@@ -1,7 +1,7 @@
 import { defineConfig } from 'drizzle-kit'
 import path from 'node:path'
 
-import { env } from '@/shared/env'
+import { env } from '@/shared/lib/env'
 
 const drizzleDir = path.join(
   process.cwd(),

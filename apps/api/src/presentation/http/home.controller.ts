@@ -1,20 +1,21 @@
+import * as Effect from 'effect/Effect'
 import { Elysia } from 'elysia'
 
-import { ApiResponse } from '@/shared/api-response'
-import { env } from '@/shared/env'
+import pkgJson from '@/../package.json' with { type: 'json' }
+import { env } from '@/shared/lib/env'
 
 export const homeController = new Elysia({
   name: 'controller.home',
 })
   .get('/', () =>
-    ApiResponse.ok('Welcome to the API', {
-      name: process.env.npm_package_name,
-      version: process.env.npm_package_version,
+    Effect.succeed({
+      name: pkgJson.name,
+      version: pkgJson.version ?? '1.0.0',
     })
   )
 
   .get('/health', () =>
-    ApiResponse.ok('Service is healthy', {
+    Effect.succeed({
       status: 'healthy',
       environment: env.NODE_ENV,
       uptime: process.uptime(),

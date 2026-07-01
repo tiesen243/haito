@@ -1,5 +1,7 @@
 import * as z from 'zod'
 
+import { PaginationSchema } from '@/shared/schema'
+
 export const postSchema = z.object({
   id: z.cuid2(),
   title: z.string().min(4).max(100),
@@ -10,10 +12,15 @@ export const postSchema = z.object({
 export type PostSchema = z.infer<typeof postSchema>
 
 export namespace GetPostsDto {
-  export const input = z.void()
+  export const input = PaginationSchema.input.extend({
+    query: z.string().optional(),
+  })
   export type Input = z.infer<typeof input>
 
-  export const output = z.array(z.object(postSchema))
+  export const output = z.object({
+    posts: z.array(postSchema),
+    meta: PaginationSchema.output,
+  })
   export type Output = z.infer<typeof output>
 }
 
