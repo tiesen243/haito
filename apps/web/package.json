@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@haito/api": "workspace:*",
     "@haito/lib": "workspace:*",
     "@haito/ui": "workspace:*",
     "@tanstack/react-query": "catalog:prod",
@@ -28,6 +29,6 @@
     "@types/react-dom": "catalog:react",
     "tailwindcss": "catalog:tailwind",
     "typescript": "catalog:dev",
-    "vite": "^8.1.0"
+    "vite": "^8.1.2"
   }
 }

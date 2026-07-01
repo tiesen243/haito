@@ -1,5 +1,6 @@
-import type { ListPostsModel } from '@haito/validators/models/post'
+import type { GetPostsDto } from '@haito/api/dtos/post'
 
+import { CreatePostDto } from '@haito/api/dtos/post'
 import { Button } from '@haito/ui/button'
 import {
   Card,
@@ -21,7 +22,6 @@ import { XIcon } from '@haito/ui/icons'
 import { Input } from '@haito/ui/input'
 import { toast } from '@haito/ui/toast'
 import { Typography } from '@haito/ui/typography'
-import { CreatePostModel } from '@haito/validators/models/post'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { api } from '@/lib/api'
@@ -48,8 +48,8 @@ export default function Index() {
 
 const CreatePostForm: React.FC = () => {
   const { mutateAsync } = useMutation({
-    mutationFn: async (values: CreatePostModel.Input) => {
-      const { success, message, data } = await api.post<CreatePostModel.Output>(
+    mutationFn: async (values: CreatePostDto.Input) => {
+      const { success, message, data } = await api.post<CreatePostDto.Output>(
         '/posts',
         values
       )
@@ -60,8 +60,8 @@ const CreatePostForm: React.FC = () => {
   })
 
   const form = useForm({
-    defaultValues: { title: '' },
-    schema: CreatePostModel.input,
+    defaultValues: { title: '', content: '' },
+    schema: CreatePostDto.input,
     onSubmit: mutateAsync,
     onSuccess: () =>
       toast.add({ type: 'success', title: 'Post created successfully!' }),
@@ -102,12 +102,11 @@ const CreatePostForm: React.FC = () => {
 }
 
 const PostList: React.FC = () => {
-  const { data, isLoading } = useQuery({
+  const { data: posts, isLoading } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: async () => {
-      const { data: posts = [] } =
-        await api.get<ListPostsModel.Output>('/posts')
-      return posts
+      const { data } = await api.get<GetPostsDto.Output>('/posts')
+      return data?.posts ?? []
     },
   })
 
@@ -139,7 +138,7 @@ const PostList: React.FC = () => {
       </Card>
     ))
 
-  return data?.map((post) => (
+  return posts?.map((post) => (
     <Card key={post.id}>
       <CardHeader>
         <CardTitle>{post.title}</CardTitle>
