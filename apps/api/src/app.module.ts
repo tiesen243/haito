@@ -1,27 +1,23 @@
 import * as Effect from 'effect/Effect'
+import * as Layer from 'effect/Layer'
 import * as ManagedRuntime from 'effect/ManagedRuntime'
 import { Elysia } from 'elysia'
 
 import { InfrastructureModule } from '@/infrastructure/infrastructure.module'
 import { HttpError } from '@/shared/http-error'
 
-// oxlint-disable-next-line unicorn/no-static-only-class typescript/no-extraneous-class
 export class AppModule {
-  static create(config: AppModule.Config) {
+  static bootstrap(config: AppModule.Config) {
     const infrastructure = InfrastructureModule.use(config.persistenceDriver)
+    const runtimeLayer = Layer.mergeAll(
+      infrastructure.persistence,
+      infrastructure.oauth
+    )
 
-    const runtime = ManagedRuntime.make(infrastructure.persistence)
-    const runProgram = <A>(effect: Effect.Effect<A, HttpError, never>) =>
-      runtime.runPromise(
+    const run = <A>(effect: Effect.Effect<A, HttpError, never>) =>
+      ManagedRuntime.make(runtimeLayer).runPromise(
         effect.pipe(
-          Effect.map(
-            (data) =>
-              new HttpError({
-                status: 200,
-                message: 'Resource fetched successfully',
-                data,
-              })
-          ),
+          Effect.map((data) => new HttpError({ data })),
           Effect.catchTag('HttpError', (result) =>
             Effect.succeed(result.toResponse())
           )
@@ -32,8 +28,7 @@ export class AppModule {
       name: 'module.app',
       aot: true,
     }).onAfterHandle(({ responseValue }) => {
-      if (Effect.isEffect(responseValue))
-        return runProgram(responseValue as never)
+      if (Effect.isEffect(responseValue)) return run(responseValue as never)
       return responseValue
     })
   }
@@ -42,5 +37,6 @@ export class AppModule {
 export namespace AppModule {
   export interface Config {
     persistenceDriver: 'in-memory' | 'drizzle'
+    oauthProviders: string[]
   }
 }

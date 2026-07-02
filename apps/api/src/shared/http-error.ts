@@ -10,8 +10,17 @@ interface HttpErrorProps<TError> {
 export class HttpError<TError = unknown> extends Data.TaggedError('HttpError')<
   HttpErrorProps<TError> & { timestamp: Date }
 > {
-  constructor({ data = null, error = null, ...props }: HttpErrorProps<TError>) {
-    super({ ...props, data, error, timestamp: new Date() })
+  constructor({
+    status = 200,
+    message = 'Resource fetched successfully',
+    data = null,
+    error = null,
+  }: Partial<HttpErrorProps<TError>>) {
+    super({ status, message, data, error, timestamp: new Date() })
+  }
+
+  static redirect(url: string) {
+    return new HttpError({ status: 302, message: url })
   }
 
   // --- 4xx Client Errors ---
@@ -52,6 +61,11 @@ export class HttpError<TError = unknown> extends Data.TaggedError('HttpError')<
 
   toResponse() {
     const { _tag, status, message, ...rest } = this
-    return Response.json({ status, message, ...rest }, { status })
+
+    const headers = new Headers()
+    headers.set('Content-Type', 'application/json')
+    if (status === 302) headers.set('Location', message)
+
+    return Response.json({ status, message, ...rest }, { status, headers })
   }
 }

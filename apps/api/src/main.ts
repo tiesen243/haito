@@ -3,13 +3,15 @@ import { toJSONSchema } from 'zod'
 
 import pkgJson from '@/../package.json' with { type: 'json' }
 import { AppModule } from '@/app.module'
+import { authController } from '@/presentation/http/auth.controller'
 import { homeController } from '@/presentation/http/home.controller'
 import { postController } from '@/presentation/http/post.controller'
 import { cors } from '@/shared/plugins/cors'
 import { errorHandle } from '@/shared/plugins/error-handle'
 
-const app = AppModule.create({
+const app = AppModule.bootstrap({
   persistenceDriver: 'in-memory',
+  oauthProviders: ['google'],
 })
   // Plugins
   .use(cors)
@@ -31,6 +33,7 @@ const app = AppModule.create({
 
   // Controllers
   .use(homeController)
+  .use(authController)
   .use(postController)
 
   .compile()

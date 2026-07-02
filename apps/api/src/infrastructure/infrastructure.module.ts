@@ -1,5 +1,6 @@
 import type { AppModule } from '@/app.module'
 
+import { OAuthModule } from '@/infrastructure/oauth/oauth.module'
 import { DrizzlePersistenceModule } from '@/infrastructure/persistence/drizzle/drizzle.module'
 import { InMemoryPersistenceModule } from '@/infrastructure/persistence/in-memory/in-memory.module'
 
@@ -12,6 +13,7 @@ export class InfrastructureModule {
 
     return {
       persistence: persistenceModule.create(),
+      oauth: OAuthModule.create(),
     }
   }
 }
