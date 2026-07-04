@@ -1,17 +1,49 @@
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 
+import type { BaseProvider } from '@/infrastructure/oauth/providers/base'
 import type { HttpError } from '@/shared/http-error'
+
+import { generateStateOrCode } from '@/shared/lib/crypto'
+import { env } from '@/shared/lib/env'
 
 export class OAuthService extends Context.Tag('OAuthService')<
   OAuthService,
   {
     readonly forProvider: (
       provider: string
-    ) => Effect.Effect<OAuthService.Provider, HttpError, never>
+    ) => Effect.Effect<BaseProvider, HttpError, never>
   }
 >() {
-  public static forProvider = (provider: string) =>
+  public static cookieOptions = {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure: env.NODE_ENV === 'production',
+  }
+
+  public static setup = (provider: string) =>
+    Effect.gen(function* redirectFunc() {
+      const _provider = yield* OAuthService.forProvider(provider)
+
+      const state = generateStateOrCode()
+      const code = generateStateOrCode()
+      const url = yield* _provider.createAuthorizationUrl(state, code)
+
+      return { url, state, code }
+    })
+
+  public static validate = (
+    provider: string,
+    code: string,
+    storedCode: string
+  ) =>
+    Effect.gen(function* validateFunc() {
+      const _provider = yield* OAuthService.forProvider(provider)
+      return yield* _provider.fetchUserData(code, storedCode)
+    })
+
+  private static forProvider = (provider: string) =>
     Effect.flatMap(this, (s) => s.forProvider(provider))
 }
 
@@ -27,17 +59,5 @@ export namespace OAuthService {
     access_token: string
     token_type: string
     expires_in: number
-  }
-
-  export interface Provider {
-    readonly createAuthorizationUrl: (
-      state: string,
-      codeVerifier: string
-    ) => Effect.Effect<URL, never, never>
-
-    readonly fetchUserData: (
-      code: string,
-      codeVerifier: string
-    ) => Effect.Effect<OAuthService.User, HttpError, never>
   }
 }

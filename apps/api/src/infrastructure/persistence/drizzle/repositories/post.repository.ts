@@ -11,7 +11,7 @@ import { posts } from '@/infrastructure/persistence/drizzle/drizzle.schema'
 
 export const PostRepositoryDrizzle = Layer.effect(
   PostRepository,
-  Effect.gen(function* PostRepositoryInMemory() {
+  Effect.gen(function* PostRepositoryDrizzle() {
     const db = yield* DrizzleClient
 
     return {

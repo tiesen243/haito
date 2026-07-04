@@ -3,6 +3,7 @@ import * as Layer from 'effect/Layer'
 import * as ManagedRuntime from 'effect/ManagedRuntime'
 import { Elysia } from 'elysia'
 
+import { JWT } from '@/application/services/jwt.service'
 import { InfrastructureModule } from '@/infrastructure/infrastructure.module'
 import { HttpError } from '@/shared/http-error'
 
@@ -11,7 +12,8 @@ export class AppModule {
     const infrastructure = InfrastructureModule.use(config.persistenceDriver)
     const runtimeLayer = Layer.mergeAll(
       infrastructure.persistence,
-      infrastructure.oauth
+      infrastructure.oauth,
+      JWT.live(config.jwt)
     )
 
     const run = <A>(effect: Effect.Effect<A, HttpError, never>) =>
@@ -38,5 +40,9 @@ export namespace AppModule {
   export interface Config {
     persistenceDriver: 'in-memory' | 'drizzle'
     oauthProviders: string[]
+    jwt: {
+      secret: string
+      algorithm: 'HS256' | 'HS384' | 'HS512'
+    }
   }
 }

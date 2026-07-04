@@ -10,8 +10,12 @@ import { cors } from '@/shared/plugins/cors'
 import { errorHandle } from '@/shared/plugins/error-handle'
 
 const app = AppModule.bootstrap({
-  persistenceDriver: 'in-memory',
+  persistenceDriver: 'drizzle',
   oauthProviders: ['google'],
+  jwt: {
+    secret: process.env.JWT_SECRET ?? 'secret',
+    algorithm: 'HS256',
+  },
 })
   // Plugins
   .use(cors)

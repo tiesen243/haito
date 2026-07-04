@@ -1,23 +1,12 @@
 import { Effect } from 'effect'
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 
+import { JWT } from '@/application/services/jwt.service'
 import { OAuthService } from '@/application/services/oauth.service'
-import { generateStateOrCode } from '@/infrastructure/oauth/lib/crypto'
+import { AuthCookie, OAuthQuery } from '@/application/types/auth.type'
+import { getOrCreateAccountUseCase } from '@/application/use-cases/auth.use-case'
+import { UserRepository } from '@/domain/repositories/user.repository'
 import { HttpError } from '@/shared/http-error'
-import { env } from '@/shared/lib/env'
-
-const cookieOptions = {
-  path: '/',
-  httpOnly: true,
-  secure: env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-}
-
-const cookieSchema = t.Object({
-  'auth.state': t.Optional(t.String({ default: '' })),
-  'auth.code': t.Optional(t.String({ default: '' })),
-  'auth.redirect_uri': t.Optional(t.String({ default: '/' })),
-})
 
 export const authController = new Elysia({
   name: 'controller.auth',
@@ -25,24 +14,42 @@ export const authController = new Elysia({
   tags: ['auth'],
 })
   .get(
+    '/whoami',
+    ({ cookie }) =>
+      Effect.gen(function* authControllerGet() {
+        const userRepo = yield* UserRepository
+        const jwt = yield* JWT
+
+        const accessToken = cookie['auth.access_token'].value
+        if (!accessToken)
+          return yield* HttpError.unauthorized('No access token found')
+
+        const data = yield* jwt.verify(accessToken)
+        const user = yield* userRepo.findBy({ id: data.sub })
+
+        return user
+      }),
+    { cookie: AuthCookie }
+  )
+
+  .get(
     '/:provider',
     ({ params, query, cookie }) =>
       Effect.gen(function* authControllerGet() {
-        const provider = yield* OAuthService.forProvider(params.provider)
-
-        const state = generateStateOrCode()
-        const code = generateStateOrCode()
-
-        const url = yield* provider.createAuthorizationUrl(state, code)
+        const { url, state, code } = yield* OAuthService.setup(params.provider)
 
         cookie['auth.state'].set({
-          ...cookieOptions,
+          ...OAuthService.cookieOptions,
           value: state,
           maxAge: 300,
         })
-        cookie['auth.code'].set({ ...cookieOptions, value: code, maxAge: 300 })
+        cookie['auth.code'].set({
+          ...OAuthService.cookieOptions,
+          value: code,
+          maxAge: 300,
+        })
         cookie['auth.redirect_uri'].set({
-          ...cookieOptions,
+          ...OAuthService.cookieOptions,
           value: query.redirect_uri,
           maxAge: 300,
         })
@@ -50,35 +57,60 @@ export const authController = new Elysia({
         return yield* HttpError.redirect(url.toString())
       }),
 
-    {
-      query: t.Object({ redirect_uri: t.String({ default: '/' }) }),
-      cookie: cookieSchema,
-    }
+    { query: OAuthQuery, cookie: AuthCookie }
   )
+
   .get(
     '/:provider/callback',
-    ({ params, query, cookie }) =>
+    ({ request, params, query, cookie }) =>
       Effect.gen(function* authControllerGet() {
-        const provider = yield* OAuthService.forProvider(params.provider)
-
         const { state, code } = query
         const storedState = cookie['auth.state'].value
         const storedCode = cookie['auth.code'].value
-        const _redirectUri = cookie['auth.redirect_uri'].value ?? '/'
+        const redirectUrl = new URL(
+          cookie['auth.redirect_uri'].value ?? '/',
+          request.url
+        )
 
-        if (!state || !storedState || !storedCode || state !== storedState)
+        if (
+          !state ||
+          !storedState ||
+          !code ||
+          !storedCode ||
+          state !== storedState
+        )
           return yield* HttpError.badRequest('Invalid state parameter')
 
-        const data = yield* provider.fetchUserData(code, storedCode)
+        const user = yield* OAuthService.validate(
+          params.provider,
+          code,
+          storedCode
+        )
+
+        const { accessToken, refreshToken, expiresAt } =
+          yield* getOrCreateAccountUseCase({
+            ...user,
+            provider: params.provider,
+          })
 
         cookie['auth.state'].remove()
         cookie['auth.code'].remove()
         cookie['auth.redirect_uri'].remove()
 
-        return data
+        cookie['auth.access_token'].set({
+          ...OAuthService.cookieOptions,
+          value: accessToken,
+          maxAge: 1000 * 60 * 15, // 15 minutes
+        })
+        cookie['auth.refresh_token'].set({
+          ...OAuthService.cookieOptions,
+          value: refreshToken,
+          expires: expiresAt,
+        })
+
+        redirectUrl.searchParams.set('access_token', accessToken)
+        redirectUrl.searchParams.set('refresh_token', refreshToken)
+        return yield* HttpError.redirect(redirectUrl.toString())
       }),
-    {
-      query: t.Object({ code: t.String(), state: t.String() }),
-      cookie: cookieSchema,
-    }
+    { query: OAuthQuery, cookie: AuthCookie }
   )

@@ -1,4 +1,9 @@
-// oxlint-disable promise/prefer-await-to-callbacks
+import type { PgTransaction } from 'drizzle-orm/pg-core'
+import type {
+  PostgresJsDatabase,
+  PostgresJsQueryResultHKT,
+} from 'drizzle-orm/postgres-js'
+
 import { drizzle } from 'drizzle-orm/postgres-js'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
@@ -8,21 +13,34 @@ import postgres from 'postgres'
 import { HttpError } from '@/shared/http-error'
 import { env } from '@/shared/lib/env'
 
-type DrizzleInstance = ReturnType<typeof drizzle>
+interface DrizzleClientProps {
+  client: PostgresJsDatabase
+  readonly query: <T>(
+    cb: (client: PostgresJsDatabase) => Promise<T>
+  ) => Effect.Effect<T, HttpError, never>
+  readonly withClient: (
+    overrideClient: PostgresJsDatabase | PgTransaction<PostgresJsQueryResultHKT>
+  ) => DrizzleClientProps
+}
+
+const make = (client: PostgresJsDatabase) => ({
+  client,
+  query: <T>(cbk: (client: PostgresJsDatabase) => Promise<T>) =>
+    Effect.tryPromise({
+      try: (_) => cbk(client),
+      catch: (error) =>
+        HttpError.internalServerError('Database query failed', error),
+    }),
+  withClient: (overrideClient: PostgresJsDatabase) => make(overrideClient),
+})
 
 export class DrizzleClient extends Context.Tag('DrizzleClient')<
   DrizzleClient,
-  {
-    client: DrizzleInstance
-    readonly query: <T>(
-      cb: (client: DrizzleInstance) => Promise<T>
-    ) => Effect.Effect<T, HttpError, never>
-  }
+  DrizzleClientProps
 >() {
-  static live = Layer.effect(
+  static live = Layer.succeed(
     this,
-    // oxlint-disable-next-line require-yield
-    Effect.gen(function* DrizzleClientLive() {
+    (() => {
       const conn = postgres({
         host: env.POSTGRES_HOST,
         port: env.POSTGRES_PORT,
@@ -32,15 +50,7 @@ export class DrizzleClient extends Context.Tag('DrizzleClient')<
       })
       const db = drizzle(conn, { casing: 'snake_case' })
 
-      return {
-        client: db,
-        query: (cb) =>
-          Effect.tryPromise({
-            try: (_) => cb(db),
-            catch: (error) =>
-              HttpError.internalServerError('Database query failed', error),
-          }),
-      }
-    })
+      return make(db)
+    })()
   )
 }
