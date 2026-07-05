@@ -1,4 +1,5 @@
 import { openapi } from '@elysia/openapi'
+import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
 
 import pkgJson from '@/../package.json' with { type: 'json' }
 import { bootstrap } from '@/bootstrap'
@@ -8,6 +9,7 @@ import { errorHandle } from '@/shared/plugins/error-handle'
 const server = bootstrap({
   name: pkgJson.name,
   aot: true,
+  adapter: CloudflareAdapter,
 
   persistenceDriver: 'in-memory',
 })
@@ -24,6 +26,8 @@ const server = bootstrap({
 
   // Register controllers
   .use(userController)
+
+  .compile()
 
 export default {
   fetch: server.fetch,

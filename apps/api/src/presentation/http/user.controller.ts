@@ -3,6 +3,7 @@ import { Elysia, t } from 'elysia'
 
 import { User } from '@/domain/entities/user.entity'
 import { UserRepository } from '@/domain/repositories/user.repository'
+import { runTransaction } from '@/shared/run-transaction'
 
 export const userController = new Elysia({
   name: 'presentation/http/user.controller',
@@ -22,7 +23,9 @@ export const userController = new Elysia({
     Effect.gen(function* getUser() {
       const userRepo = yield* UserRepository
 
-      return yield* userRepo.find(params.id)
+      return yield* runTransaction(function* getUserTransaction() {
+        return yield* userRepo.find(params.id)
+      })
     })
   )
 

@@ -5,25 +5,23 @@ import * as Layer from 'effect/Layer'
 import type { User, UserProps } from '@/domain/entities/user.entity'
 
 import { UserRepository } from '@/domain/repositories/user.repository'
-import { Drizzle } from '@/infrastructure/persistence/drizzle/drizzle.client'
+import { DrizzleClient } from '@/infrastructure/persistence/drizzle/drizzle.client'
 
 export const DrizzleUserRepository = Layer.effect(
   UserRepository,
   Effect.gen(function* DrizzleUserRepositoryImpl() {
-    const db = yield* Drizzle
-    const { users } = Drizzle.schema
+    const { db, $ } = yield* DrizzleClient
+    const { users } = DrizzleClient.schema
 
     return {
-      all: () => db.select().from(users),
+      all: () => $(db.select().from(users)),
 
       find: (id: UserProps['id']) =>
-        db
-          .select()
-          .from(users)
-          .where(eq(users.id, id))
-          .pipe(Effect.map((results) => results[0] ?? null)),
+        $(db.select().from(users).where(eq(users.id, id))).pipe(
+          Effect.map((rows) => rows[0] ?? null)
+        ),
 
-      save: (user: User) => db.insert(users).values({ ...user }),
+      save: (user: User) => $(db.insert(users).values({ ...user })),
     }
   })
 )
