@@ -18,6 +18,7 @@
     "build": "tsdown",
     "db:generate": "drizzle-kit generate --config ./src/infrastructure/persistence/drizzle/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config ./src/infrastructure/persistence/drizzle/drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config ./src/infrastructure/persistence/drizzle/drizzle.config.ts",
     "dev": "bun run --hot src/main.ts",
     "start": "bun run dist/main.mjs",
     "typecheck": "tsc --noEmit"

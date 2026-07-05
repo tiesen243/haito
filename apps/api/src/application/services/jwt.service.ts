@@ -3,144 +3,142 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import crypto from 'node:crypto'
 
-import type { AppModule } from '@/app.module'
-
+import { Config } from '@/shared/config'
 import { decodeBase64Url, encodeBase64Url } from '@/shared/lib/crypto'
-
-export interface JWTOptions {
-  headers?: Record<string, unknown>
-  expiresIn?: number
-  issuer?: string
-  subject?: string
-  audiences?: string | string[]
-  notBefore?: Date
-  includeIssuedTimestamp?: boolean
-  jwtId?: string
-}
-
-export interface JWTHeader {
-  exp: number
-  aud?: string | string[]
-  iat?: number
-  iss?: string
-  jti?: string
-  nbf?: number
-  sub?: string
-  [key: string]: unknown
-}
 
 export class JWT extends Context.Tag('JWT')<
   JWT,
   {
     readonly sign: (
       payloadClaims: Record<string, unknown>,
-      options?: JWTOptions
-    ) => Effect.Effect<string, never, never>
+      options?: JWT.Options
+    ) => Effect.Effect<string, never, Config>
 
-    readonly verify: (token: string) => Effect.Effect<JWTHeader, Error, never>
+    readonly verify: (token: string) => Effect.Effect<JWT.Header, Error, Config>
   }
 >() {
-  public static live = (config: AppModule.Config['jwt']) => {
-    const signData = (
-      data: Uint8Array
-    ): Effect.Effect<ArrayBuffer, never, never> =>
-      Effect.gen(function* signDataFunc() {
-        const algMap = {
-          HS256: { name: 'SHA-256' },
-          HS384: { name: 'SHA-384' },
-          HS512: { name: 'SHA-512' },
-        } as const
+  public static live = Layer.succeed(JWT, {
+    sign: (payloadClaims: Record<string, unknown>, options: JWT.Options = {}) =>
+      Effect.gen(function* signFunc() {
+        const config = yield* Config
 
-        const key = yield* Effect.promise(() =>
-          crypto.subtle.importKey(
-            'raw',
-            new TextEncoder().encode(config.secret),
-            { name: 'HMAC', hash: algMap[config.algorithm] },
-            false,
-            ['sign']
-          )
+        const header = {
+          ...options.headers,
+          alg: config.auth.algorithm ?? 'HS256',
+          typ: 'JWT',
+        }
+        const payload = { ...payloadClaims } as Record<string, unknown>
+
+        if (!payload.exp)
+          payload.exp =
+            Math.floor(Date.now() / 1000) + (options.expiresIn ?? 3600)
+        if (options.audiences) payload.aud = options.audiences
+        if (options.subject) payload.sub = options.subject
+        if (options.issuer) payload.iss = options.issuer
+        if (options.jwtId) payload.jti = options.jwtId
+        if (options.notBefore)
+          payload.nbf = Math.floor(options.notBefore.getTime() / 1000)
+        if (options.includeIssuedTimestamp)
+          payload.iat = Math.floor(Date.now() / 1000)
+
+        const textEncoder = new TextEncoder()
+        const headerPart = encodeBase64Url(
+          textEncoder.encode(JSON.stringify(header))
+        )
+        const payloadPart = encodeBase64Url(
+          textEncoder.encode(JSON.stringify(payload))
         )
 
-        return yield* Effect.promise(() =>
-          crypto.subtle.sign('HMAC', key, data as Uint8Array<ArrayBuffer>)
+        const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
+        const signature = yield* JWT.signData(data)
+        const signaturePart = encodeBase64Url(new Uint8Array(signature))
+
+        return `${headerPart}.${payloadPart}.${signaturePart}`
+      }),
+
+    verify: (token: string) =>
+      Effect.gen(function* verifyFunc() {
+        const [headerPart, payloadPart, signaturePart] = token.split('.')
+        if (!headerPart || !payloadPart || !signaturePart)
+          throw new Error('Invalid token format')
+
+        const textEncoder = new TextEncoder()
+        const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
+
+        const expectedSignature = yield* JWT.signData(data)
+
+        const expectedSignaturePart = encodeBase64Url(
+          new Uint8Array(expectedSignature)
         )
-      })
+        if (expectedSignaturePart !== signaturePart)
+          throw new Error('Invalid token signature')
 
-    return Layer.succeed(JWT, {
-      sign: (
-        payloadClaims: Record<string, unknown>,
-        options: JWTOptions = {}
-      ) =>
-        Effect.gen(function* signFunc() {
-          const header = {
-            ...options.headers,
-            alg: config.algorithm,
-            typ: 'JWT',
-          }
-          const payload = { ...payloadClaims } as Record<string, unknown>
+        const payloadJson = new TextDecoder().decode(
+          decodeBase64Url(payloadPart)
+        )
+        const headerJson = new TextDecoder().decode(decodeBase64Url(headerPart))
 
-          if (!payload.exp)
-            payload.exp =
-              Math.floor(Date.now() / 1000) + (options.expiresIn ?? 3600)
-          if (options.audiences) payload.aud = options.audiences
-          if (options.subject) payload.sub = options.subject
-          if (options.issuer) payload.iss = options.issuer
-          if (options.jwtId) payload.jti = options.jwtId
-          if (options.notBefore)
-            payload.nbf = Math.floor(options.notBefore.getTime() / 1000)
-          if (options.includeIssuedTimestamp)
-            payload.iat = Math.floor(Date.now() / 1000)
+        const payload = JSON.parse(payloadJson) as JWT.Header
+        const header = JSON.parse(headerJson) as Record<string, unknown>
 
-          const textEncoder = new TextEncoder()
-          const headerPart = encodeBase64Url(
-            textEncoder.encode(JSON.stringify(header))
-          )
-          const payloadPart = encodeBase64Url(
-            textEncoder.encode(JSON.stringify(payload))
-          )
+        const currentTime = Math.floor(Date.now() / 1000)
+        if (payload.exp && currentTime >= payload.exp)
+          throw new Error('Token has expired')
+        if (payload.nbf && currentTime < payload.nbf)
+          throw new Error('Token not valid yet')
 
-          const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
-          const signature = yield* signData(data)
-          const signaturePart = encodeBase64Url(new Uint8Array(signature))
+        return { ...payload, ...header }
+      }),
+  })
 
-          return `${headerPart}.${payloadPart}.${signaturePart}`
-        }),
+  private static signData = (
+    data: Uint8Array
+  ): Effect.Effect<ArrayBuffer, never, Config> =>
+    Effect.gen(function* signDataFunc() {
+      const config = yield* Config
 
-      verify: (token: string) =>
-        Effect.gen(function* verifyFunc() {
-          const [headerPart, payloadPart, signaturePart] = token.split('.')
-          if (!headerPart || !payloadPart || !signaturePart)
-            throw new Error('Invalid token format')
+      const algMap = {
+        HS256: { name: 'SHA-256' },
+        HS384: { name: 'SHA-384' },
+        HS512: { name: 'SHA-512' },
+      } as const
 
-          const textEncoder = new TextEncoder()
-          const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
+      const key = yield* Effect.promise(() =>
+        crypto.subtle.importKey(
+          'raw',
+          new TextEncoder().encode(config.auth.secret),
+          { name: 'HMAC', hash: algMap[config.auth.algorithm ?? 'HS256'] },
+          false,
+          ['sign']
+        )
+      )
 
-          const expectedSignature = yield* signData(data)
-
-          const expectedSignaturePart = encodeBase64Url(
-            new Uint8Array(expectedSignature)
-          )
-          if (expectedSignaturePart !== signaturePart)
-            throw new Error('Invalid token signature')
-
-          const payloadJson = new TextDecoder().decode(
-            decodeBase64Url(payloadPart)
-          )
-          const headerJson = new TextDecoder().decode(
-            decodeBase64Url(headerPart)
-          )
-
-          const payload = JSON.parse(payloadJson) as JWTHeader
-          const header = JSON.parse(headerJson) as Record<string, unknown>
-
-          const currentTime = Math.floor(Date.now() / 1000)
-          if (payload.exp && currentTime >= payload.exp)
-            throw new Error('Token has expired')
-          if (payload.nbf && currentTime < payload.nbf)
-            throw new Error('Token not valid yet')
-
-          return { ...payload, ...header }
-        }),
+      return yield* Effect.promise(() =>
+        crypto.subtle.sign('HMAC', key, data as Uint8Array<ArrayBuffer>)
+      )
     })
+}
+
+export namespace JWT {
+  export interface Options {
+    headers?: Record<string, unknown>
+    expiresIn?: number
+    issuer?: string
+    subject?: string
+    audiences?: string | string[]
+    notBefore?: Date
+    includeIssuedTimestamp?: boolean
+    jwtId?: string
+  }
+
+  export interface Header {
+    exp: number
+    aud?: string | string[]
+    iat?: number
+    iss?: string
+    jti?: string
+    nbf?: number
+    sub?: string
+    [key: string]: unknown
   }
 }

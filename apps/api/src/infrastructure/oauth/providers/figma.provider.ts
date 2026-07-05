@@ -3,17 +3,17 @@ import * as Effect from 'effect/Effect'
 import type { OAuthService } from '@/application/services/oauth.service'
 import type { HttpError } from '@/shared/http-error'
 
-import { BaseProvider } from '@/infrastructure/oauth/providers/base'
+import { BaseProvider } from '@/infrastructure/oauth/providers/base.provider'
 import { effetch } from '@/shared/lib/effetch'
 
-export class Vercel extends BaseProvider {
+export class FigmaProvider extends BaseProvider {
   public constructor(clientId: string, clientSecret: string, redirectUri = '') {
-    super('vercel', clientId, clientSecret, redirectUri)
+    super('figma', clientId, clientSecret, redirectUri)
   }
 
-  private authorizationEndpoint = 'https://vercel.com/oauth/authorize'
-  private tokenEndpoint = 'https://api.vercel.com/login/oauth/token'
-  private apiEndpoint = 'https://api.vercel.com/login/oauth/userinfo'
+  private authorizationEndpoint = 'https://www.figma.com/oauth'
+  private tokenEndpoint = 'https://api.figma.com/v1/oauth/token'
+  private apiEndpoint = 'https://api.figma.com/v1/me'
 
   public override createAuthorizationUrl(
     state: string,
@@ -22,7 +22,7 @@ export class Vercel extends BaseProvider {
     return this.createAuthorizationUrlWithPKCE(
       this.authorizationEndpoint,
       state,
-      ['openid', 'email', 'profile'],
+      ['current_user:read'],
       codeVerifier
     )
   }
@@ -41,24 +41,23 @@ export class Vercel extends BaseProvider {
         codeVerifier
       )
 
-      const user = yield* effetch<VercelUserResponse>(self.apiEndpoint, {
+      const user = yield* effetch<FigmaUserResponse>(self.apiEndpoint, {
         headers: { Authorization: `Bearer ${tokens.access_token}` },
       })
 
       return {
-        id: user.sub,
-        name: user.name,
+        id: user.id,
+        name: user.handle,
         email: user.email,
-        image: user.picture,
+        image: user.img_url,
       }
     })
   }
 }
 
-interface VercelUserResponse {
-  sub: string
-  name: string
+interface FigmaUserResponse {
+  id: string
+  handle: string
   email: string
-  picture: string
-  preferred_username: string
+  img_url: string
 }

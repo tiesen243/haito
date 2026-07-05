@@ -1,11 +1,10 @@
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 
-import type { BaseProvider } from '@/infrastructure/oauth/providers/base'
+import type { BaseProvider } from '@/infrastructure/oauth/providers/base.provider'
 import type { HttpError } from '@/shared/http-error'
 
 import { generateStateOrCode } from '@/shared/lib/crypto'
-import { env } from '@/shared/lib/env'
 
 export class OAuthService extends Context.Tag('OAuthService')<
   OAuthService,
@@ -15,13 +14,6 @@ export class OAuthService extends Context.Tag('OAuthService')<
     ) => Effect.Effect<BaseProvider, HttpError, never>
   }
 >() {
-  public static cookieOptions = {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'lax' as const,
-    secure: env.NODE_ENV === 'production',
-  }
-
   public static setup = (provider: string) =>
     Effect.gen(function* redirectFunc() {
       const _provider = yield* OAuthService.forProvider(provider)

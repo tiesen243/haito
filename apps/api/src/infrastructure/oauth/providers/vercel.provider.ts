@@ -3,17 +3,17 @@ import * as Effect from 'effect/Effect'
 import type { OAuthService } from '@/application/services/oauth.service'
 import type { HttpError } from '@/shared/http-error'
 
-import { BaseProvider } from '@/infrastructure/oauth/providers/base'
+import { BaseProvider } from '@/infrastructure/oauth/providers/base.provider'
 import { effetch } from '@/shared/lib/effetch'
 
-export class Google extends BaseProvider {
+export class VercelProvider extends BaseProvider {
   public constructor(clientId: string, clientSecret: string, redirectUri = '') {
-    super('google', clientId, clientSecret, redirectUri)
+    super('vercel', clientId, clientSecret, redirectUri)
   }
 
-  private authorizationEndpoint = 'https://accounts.google.com/o/oauth2/v2/auth'
-  private tokenEndpoint = 'https://oauth2.googleapis.com/token'
-  private apiEndpoint = 'https://openidconnect.googleapis.com/v1/userinfo'
+  private authorizationEndpoint = 'https://vercel.com/oauth/authorize'
+  private tokenEndpoint = 'https://api.vercel.com/login/oauth/token'
+  private apiEndpoint = 'https://api.vercel.com/login/oauth/userinfo'
 
   public override createAuthorizationUrl(
     state: string,
@@ -41,7 +41,7 @@ export class Google extends BaseProvider {
         codeVerifier
       )
 
-      const user = yield* effetch<GoogleUserResponse>(self.apiEndpoint, {
+      const user = yield* effetch<VercelUserResponse>(self.apiEndpoint, {
         headers: { Authorization: `Bearer ${tokens.access_token}` },
       })
 
@@ -55,9 +55,10 @@ export class Google extends BaseProvider {
   }
 }
 
-interface GoogleUserResponse {
+interface VercelUserResponse {
   sub: string
   name: string
   email: string
   picture: string
+  preferred_username: string
 }

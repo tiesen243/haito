@@ -3,10 +3,10 @@ import * as Effect from 'effect/Effect'
 import type { OAuthService } from '@/application/services/oauth.service'
 import type { HttpError } from '@/shared/http-error'
 
-import { BaseProvider } from '@/infrastructure/oauth/providers/base'
+import { BaseProvider } from '@/infrastructure/oauth/providers/base.provider'
 import { effetch } from '@/shared/lib/effetch'
 
-export class Discord extends BaseProvider {
+export class DiscordProvider extends BaseProvider {
   public constructor(clientId: string, clientSecret: string, redirectUri = '') {
     super('discord', clientId, clientSecret, redirectUri)
   }

@@ -3,17 +3,17 @@ import * as Effect from 'effect/Effect'
 import type { OAuthService } from '@/application/services/oauth.service'
 import type { HttpError } from '@/shared/http-error'
 
-import { BaseProvider } from '@/infrastructure/oauth/providers/base'
+import { BaseProvider } from '@/infrastructure/oauth/providers/base.provider'
 import { effetch } from '@/shared/lib/effetch'
 
-export class Github extends BaseProvider {
+export class GoogleProvider extends BaseProvider {
   public constructor(clientId: string, clientSecret: string, redirectUri = '') {
-    super('github', clientId, clientSecret, redirectUri)
+    super('google', clientId, clientSecret, redirectUri)
   }
 
-  private authorizationEndpoint = 'https://github.com/login/oauth/authorize'
-  private tokenEndpoint = 'https://github.com/login/oauth/access_token'
-  private apiEndpoint = 'https://api.github.com/user'
+  private authorizationEndpoint = 'https://accounts.google.com/o/oauth2/v2/auth'
+  private tokenEndpoint = 'https://oauth2.googleapis.com/token'
+  private apiEndpoint = 'https://openidconnect.googleapis.com/v1/userinfo'
 
   public override createAuthorizationUrl(
     state: string,
@@ -22,7 +22,7 @@ export class Github extends BaseProvider {
     return this.createAuthorizationUrlWithPKCE(
       this.authorizationEndpoint,
       state,
-      ['read:user', 'user:email'],
+      ['openid', 'email', 'profile'],
       codeVerifier
     )
   }
@@ -41,23 +41,23 @@ export class Github extends BaseProvider {
         codeVerifier
       )
 
-      const user = yield* effetch<GithubUserResponse>(self.apiEndpoint, {
+      const user = yield* effetch<GoogleUserResponse>(self.apiEndpoint, {
         headers: { Authorization: `Bearer ${tokens.access_token}` },
       })
 
       return {
-        id: user.id,
+        id: user.sub,
         name: user.name,
         email: user.email,
-        image: user.avatar_url,
+        image: user.picture,
       }
     })
   }
 }
 
-interface GithubUserResponse {
-  id: string
+interface GoogleUserResponse {
+  sub: string
   name: string
   email: string
-  avatar_url: string
+  picture: string
 }

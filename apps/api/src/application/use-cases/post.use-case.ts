@@ -59,7 +59,7 @@ export const createPostUseCase = createUseCase<
     function* createPostUseCaseFunc() {
       const postRepo = yield* PostRepository
 
-      const newPost = Post.create(input)
+      const newPost = Post.create({ ...input, userId: '' })
       yield* postRepo.save(newPost)
 
       return newPost
