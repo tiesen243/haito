@@ -12,7 +12,7 @@ export const SessionProps = Schema.Struct({
 })
 export type SessionProps = Schema.Schema.Type<typeof SessionProps>
 
-export class Session extends Schema.Class<Session>('domain/Session')(
+export class Session extends Schema.Class<Session>('domain/entity/Session')(
   SessionProps
 ) {
   private _user: User | null = null

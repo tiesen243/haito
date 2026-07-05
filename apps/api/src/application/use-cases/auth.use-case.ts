@@ -2,7 +2,7 @@ import { Effect } from 'effect'
 
 import type { OAuthService } from '@/application/services/oauth.service'
 
-import { JWT } from '@/application/services/jwt.service'
+import { JWTService } from '@/application/services/jwt.service'
 import { Account } from '@/domain/entities/account.entity'
 import { Session } from '@/domain/entities/session.entity'
 import { User } from '@/domain/entities/user.entity'
@@ -25,7 +25,7 @@ export const getCurrentUserUseCase = createUseCase<
   (input) =>
     function* getCurrentUserUseCaseFunc() {
       const userRepo = yield* UserRepository
-      const jwt = yield* JWT
+      const jwt = yield* JWTService
 
       if (!input.accessToken)
         return yield* HttpError.unauthorized('Access token is required')
@@ -73,7 +73,7 @@ const createSession = (userId: string) =>
   Effect.gen(function* createSessionFunc() {
     const sessionRepo = yield* SessionRepository
     const config = yield* Config
-    const jwt = yield* JWT
+    const jwt = yield* JWTService
 
     const id = generateSecureString()
     const secret = generateSecureString()

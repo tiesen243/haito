@@ -3,7 +3,7 @@ import * as Layer from 'effect/Layer'
 import * as ManagedRuntime from 'effect/ManagedRuntime'
 import { Elysia } from 'elysia'
 
-import { JWT } from '@/application/services/jwt.service'
+import { JWTService } from '@/application/services/jwt.service'
 import { InfrastructureModule } from '@/infrastructure/infrastructure.module'
 import { Config } from '@/shared/config'
 import { HttpError } from '@/shared/http-error'
@@ -19,7 +19,7 @@ export function bootstrap(_config: Config.Options) {
   const runtimeLayer = Layer.mergeAll(
     infrastructure.persistence,
     infrastructure.oauth,
-    JWT.live,
+    JWTService.live,
     config
   )
 

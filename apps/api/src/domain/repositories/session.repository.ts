@@ -5,7 +5,7 @@ import * as Context from 'effect/Context'
 import type { Session } from '@/domain/entities/session.entity'
 import type { HttpError } from '@/shared/http-error'
 
-export class SessionRepository extends Context.Tag('domain/SessionRepository')<
+export class SessionRepository extends Context.Tag('domain/repository/Session')<
   SessionRepository,
   {
     readonly save: (account: Session) => Effect<void, HttpError>

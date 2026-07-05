@@ -6,7 +6,7 @@ import type { HttpError } from '@/shared/http-error'
 
 import { generateStateOrCode } from '@/shared/lib/crypto'
 
-export class OAuthService extends Context.Tag('OAuthService')<
+export class OAuthService extends Context.Tag('application/service/OAuth')<
   OAuthService,
   {
     readonly forProvider: (

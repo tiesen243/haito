@@ -2,36 +2,35 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Ref from 'effect/Ref'
 
-import type { Post } from '@/domain/entities/post.entity'
-
+import { Post } from '@/domain/entities/post.entity'
 import { PostRepository } from '@/domain/repositories/post.repository'
 
-export const PostRepositoryInMemory = Layer.effect(
-  PostRepository,
-  Effect.gen(function* PostRepositoryInMemory() {
-    const store = yield* Ref.make<Record<string, Post>>({})
+const store = Ref.unsafeMake<Record<string, Post>>({})
 
-    return {
-      find: (
-        _criterias: Partial<Post>[] = [],
-        _sort: Partial<Record<keyof Post, 'asc' | 'desc'>> = {},
-        _options: { limit?: number; offset?: number } = {}
-      ) => Ref.get(store).pipe(Effect.map((dict) => Object.values(dict))),
+export const PostRepositoryInMemory = Layer.succeed(PostRepository, {
+  find: (
+    _criterias: Partial<Post>[] = [],
+    _sort: Partial<Record<keyof Post, 'asc' | 'desc'>> = {},
+    _options: { limit?: number; offset?: number } = {}
+  ) =>
+    Ref.get(store).pipe(
+      Effect.map((dict) => Object.values(dict).map((p) => new Post(p)))
+    ),
 
-      one: (id: Post['id']) =>
-        Ref.get(store).pipe(Effect.map((dict) => dict[id] ?? null)),
+  one: (id: Post['id']) =>
+    Ref.get(store).pipe(
+      Effect.map((dict) => (dict[id] ? new Post(dict[id]) : null))
+    ),
 
-      save: (post: Post) =>
-        Ref.update(store, (dict) => ({ ...dict, [post.id]: post })),
+  save: (post: Post) =>
+    Ref.update(store, (dict) => ({ ...dict, [post.id]: post })),
 
-      delete: (id: Post['id']) =>
-        Ref.update(store, (dict) => {
-          const { [id]: _, ...rest } = dict
-          return rest
-        }),
+  delete: (id: Post['id']) =>
+    Ref.update(store, (dict) => {
+      const { [id]: _, ...rest } = dict
+      return rest
+    }),
 
-      count: (_criterias: Partial<Post>[] = []) =>
-        Ref.get(store).pipe(Effect.map((dict) => Object.keys(dict).length)),
-    }
-  })
-)
+  count: (_criterias: Partial<Post>[] = []) =>
+    Ref.get(store).pipe(Effect.map((dict) => Object.keys(dict).length)),
+})

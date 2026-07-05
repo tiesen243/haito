@@ -14,7 +14,7 @@ export const PostProps = Schema.Struct({
 })
 export type PostProps = Schema.Schema.Type<typeof PostProps>
 
-export class Post extends Schema.Class<Post>('domain/Post')(PostProps) {
+export class Post extends Schema.Class<Post>('domain/entity/Post')(PostProps) {
   private _author: User | null = null
 
   static create(post: Pick<PostProps, 'title' | 'content' | 'userId'>): Post {

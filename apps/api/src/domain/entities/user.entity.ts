@@ -15,7 +15,7 @@ export const UserProps = Schema.Struct({
 })
 export type UserProps = Schema.Schema.Type<typeof UserProps>
 
-export class User extends Schema.Class<User>('domain/User')(UserProps) {
+export class User extends Schema.Class<User>('domain/entity/User')(UserProps) {
   private _accounts: Account[] = []
   private _sessions: Session[] = []
   private _posts: Post[] = []

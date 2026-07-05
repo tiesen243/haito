@@ -6,19 +6,24 @@ import crypto from 'node:crypto'
 import { Config } from '@/shared/config'
 import { decodeBase64Url, encodeBase64Url } from '@/shared/lib/crypto'
 
-export class JWT extends Context.Tag('JWT')<
-  JWT,
+export class JWTService extends Context.Tag('application/service/JWT')<
+  JWTService,
   {
     readonly sign: (
       payloadClaims: Record<string, unknown>,
-      options?: JWT.Options
+      options?: JWTService.Options
     ) => Effect.Effect<string, never, Config>
 
-    readonly verify: (token: string) => Effect.Effect<JWT.Header, Error, Config>
+    readonly verify: (
+      token: string
+    ) => Effect.Effect<JWTService.Header, Error, Config>
   }
 >() {
-  public static live = Layer.succeed(JWT, {
-    sign: (payloadClaims: Record<string, unknown>, options: JWT.Options = {}) =>
+  public static live = Layer.succeed(JWTService, {
+    sign: (
+      payloadClaims: Record<string, unknown>,
+      options: JWTService.Options = {}
+    ) =>
       Effect.gen(function* signFunc() {
         const config = yield* Config
 
@@ -50,7 +55,7 @@ export class JWT extends Context.Tag('JWT')<
         )
 
         const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
-        const signature = yield* JWT.signData(data)
+        const signature = yield* JWTService.signData(data)
         const signaturePart = encodeBase64Url(new Uint8Array(signature))
 
         return `${headerPart}.${payloadPart}.${signaturePart}`
@@ -65,7 +70,7 @@ export class JWT extends Context.Tag('JWT')<
         const textEncoder = new TextEncoder()
         const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
 
-        const expectedSignature = yield* JWT.signData(data)
+        const expectedSignature = yield* JWTService.signData(data)
 
         const expectedSignaturePart = encodeBase64Url(
           new Uint8Array(expectedSignature)
@@ -78,7 +83,7 @@ export class JWT extends Context.Tag('JWT')<
         )
         const headerJson = new TextDecoder().decode(decodeBase64Url(headerPart))
 
-        const payload = JSON.parse(payloadJson) as JWT.Header
+        const payload = JSON.parse(payloadJson) as JWTService.Header
         const header = JSON.parse(headerJson) as Record<string, unknown>
 
         const currentTime = Math.floor(Date.now() / 1000)
@@ -119,7 +124,7 @@ export class JWT extends Context.Tag('JWT')<
     })
 }
 
-export namespace JWT {
+export namespace JWTService {
   export interface Options {
     headers?: Record<string, unknown>
     expiresIn?: number

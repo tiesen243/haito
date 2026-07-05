@@ -12,7 +12,7 @@ export const AccountProps = Schema.Struct({
 })
 export type AccountProps = Schema.Schema.Type<typeof AccountProps>
 
-export class Account extends Schema.Class<Account>('domain/Account')(
+export class Account extends Schema.Class<Account>('domain/entity/Account')(
   AccountProps
 ) {
   private _user: User | null = null

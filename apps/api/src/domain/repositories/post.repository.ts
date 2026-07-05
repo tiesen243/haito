@@ -5,7 +5,7 @@ import * as Context from 'effect/Context'
 import type { Post } from '@/domain/entities/post.entity'
 import type { HttpError } from '@/shared/http-error'
 
-export class PostRepository extends Context.Tag('PostRepository')<
+export class PostRepository extends Context.Tag('domain/repository/Post')<
   PostRepository,
   {
     readonly find: (

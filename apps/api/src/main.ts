@@ -12,8 +12,8 @@ import { env } from '@/shared/lib/env'
 import { cors } from '@/shared/plugins/cors'
 import { errorHandle } from '@/shared/plugins/error-handle'
 
-const app = bootstrap({
-  persistenceDriver: 'drizzle',
+const server = bootstrap({
+  persistenceDriver: 'in-memory',
   auth: {
     secret: env.AUTH_SECRET,
     providers: [
@@ -46,5 +46,5 @@ const app = bootstrap({
   .compile()
 
 export default {
-  fetch: app.fetch,
+  fetch: server.fetch,
 }
