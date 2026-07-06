@@ -9,7 +9,6 @@ import { SessionRepository } from '@/domain/repositories/session.repository'
 import { UserRepository } from '@/domain/repositories/user.repository'
 import { env } from '@/shared/env'
 import { HttpError } from '@/shared/http-error'
-import { createUseCase } from '@/shared/lib/create-use-case'
 import {
   encodeHex,
   generateSecureString,
@@ -17,7 +16,7 @@ import {
 } from '@/shared/lib/crypto'
 import { JWT } from '@/shared/lib/jwt'
 import { Password } from '@/shared/lib/password'
-import { runTransaction } from '@/shared/run-transaction'
+import { createUseCase, runTransaction } from '@/shared/lib/utils'
 
 const password = new Password()
 const jwt = new JWT(env.AUTH_SECRET)

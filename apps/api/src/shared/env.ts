@@ -10,6 +10,7 @@ export const env = createEnv({
 
   server: {
     PORT: z.number().default(3000),
+    CORS_ORIGIN: z.string().default('http://localhost:3000'),
 
     DATABASE_URL: z
       .string()

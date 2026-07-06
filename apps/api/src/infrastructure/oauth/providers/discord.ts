@@ -3,7 +3,7 @@ import * as Effect from 'effect/Effect'
 import type { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
 
 import { BaseProvider } from '@/infrastructure/oauth/providers/base'
-import { effetch } from '@/shared/lib/effetch'
+import { effetch } from '@/shared/lib/utils'
 
 export class Discord extends BaseProvider {
   public constructor(clientId: string, clientSecret: string, redirectUri = '') {

@@ -6,6 +6,7 @@ import { bootstrap } from '@/bootstrap'
 import { Google } from '@/infrastructure/oauth/providers/google'
 import { authController } from '@/presentation/http/auth.controller'
 import { env } from '@/shared/env'
+import { cors } from '@/shared/plugins/cors'
 import { errorHandle } from '@/shared/plugins/error-handle'
 
 const server = bootstrap({
@@ -24,6 +25,7 @@ const server = bootstrap({
   providers: [new Google(env.AUTH_GOOGLE_ID, env.AUTH_GOOGLE_SECRET)],
 })
   // Register plugins
+  .use(cors)
   .use(errorHandle)
   .use(
     openapi({

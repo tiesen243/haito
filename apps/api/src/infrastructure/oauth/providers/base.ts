@@ -6,7 +6,7 @@ import type { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.mod
 import type { HttpError } from '@/shared/http-error'
 
 import { generateCodeChallenge } from '@/shared/lib/crypto'
-import { effetch } from '@/shared/lib/effetch'
+import { effetch } from '@/shared/lib/utils'
 
 export abstract class BaseProvider {
   protected constructor(
