@@ -3,7 +3,7 @@ import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
 
 import pkgJson from '@/../package.json' with { type: 'json' }
 import { bootstrap } from '@/bootstrap'
-import { userController } from '@/presentation/http/user.controller'
+import { authController } from '@/presentation/http/auth.controller'
 import { errorHandle } from '@/shared/plugins/error-handle'
 
 const server = bootstrap({
@@ -25,7 +25,8 @@ const server = bootstrap({
   )
 
   // Register controllers
-  .use(userController)
+  .get('/', () => `${pkgJson.name} v${pkgJson.version}`)
+  .use(authController)
 
   .compile()
 

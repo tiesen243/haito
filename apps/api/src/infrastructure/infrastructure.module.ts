@@ -11,7 +11,7 @@ export class InfrastructureModule {
         : InfrastructureDrizzleModule
 
     return {
-      persistence: persistenceModule.create(),
+      persistence: persistenceModule,
     }
   }
 }
