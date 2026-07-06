@@ -132,7 +132,7 @@ export const registerUseCase = createUseCase<
 
         const account = Account.create({
           provider: 'credentials',
-          providerAccountId: email,
+          providerAccountId: user.id,
           password: yield* password.hash(plainPassword),
           userId: user.id,
         })
