@@ -2,6 +2,7 @@
 import * as Effect from 'effect/Effect'
 import crypto from 'node:crypto'
 
+import { HttpError } from '@/shared/http-error'
 import { decodeBase64Url, encodeBase64Url } from '@/shared/lib/crypto'
 
 export type JWTAlgorithm = 'HS256' | 'HS384' | 'HS512'
@@ -50,13 +51,15 @@ export class JWT<TValue extends Record<string, unknown>> {
     })
   }
 
-  public verify = (token: string): Effect.Effect<TValue & JWT.Header> => {
+  public verify = (
+    token: string
+  ): Effect.Effect<TValue & JWT.Header, HttpError> => {
     const self = this
 
     return Effect.gen(function* verifyFunc() {
       const [headerPart, payloadPart, signaturePart] = token.split('.')
       if (!headerPart || !payloadPart || !signaturePart)
-        throw new Error('Invalid token format')
+        return yield* HttpError.badRequest('Invalid token format')
 
       const textEncoder = new TextEncoder()
       const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
@@ -67,7 +70,7 @@ export class JWT<TValue extends Record<string, unknown>> {
         new Uint8Array(expectedSignature)
       )
       if (expectedSignaturePart !== signaturePart)
-        throw new Error('Invalid token signature')
+        return yield* HttpError.unauthorized('Invalid token signature')
 
       const payloadJson = new TextDecoder().decode(decodeBase64Url(payloadPart))
       const headerJson = new TextDecoder().decode(decodeBase64Url(headerPart))
@@ -77,9 +80,10 @@ export class JWT<TValue extends Record<string, unknown>> {
 
       const currentTime = Math.floor(Date.now() / 1000)
       if (payload.exp && currentTime >= payload.exp)
-        throw new Error('Token has expired')
+        return yield* HttpError.unauthorized('Token has expired')
+
       if (payload.nbf && currentTime < payload.nbf)
-        throw new Error('Token not valid yet')
+        return yield* HttpError.unauthorized('Token not valid yet')
 
       return { ...payload, ...header }
     })
