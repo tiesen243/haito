@@ -17,6 +17,7 @@ import {
 } from '@/shared/lib/crypto'
 import { JWT } from '@/shared/lib/jwt'
 import { Password } from '@/shared/lib/password'
+import { runTransaction } from '@/shared/run-transaction'
 
 const password = new Password()
 const jwt = new JWT(env.AUTH_SECRET)
@@ -40,10 +41,14 @@ export const loginUseCase = createUseCase<LoginDto.Input, LoginDto.Output>(
   (input) =>
     function* loginUseCaseFunc() {
       const accountRepository = yield* AccountRepository
+      const userRepository = yield* UserRepository
+
+      const user = yield* userRepository.findBy({ email: input.email })
+      if (!user) return yield* HttpError.unauthorized('Invalid credentials')
 
       const account = yield* accountRepository.findByProvider({
         provider: 'credentials',
-        providerAccountId: input.email,
+        providerAccountId: user.id,
       })
       if (!account || !account.password)
         return yield* HttpError.unauthorized('Invalid credentials')
@@ -69,31 +74,34 @@ export const loginWithOAuthUseCase = createUseCase<
         providerAccountId: input.id,
       })
 
-      if (!account) {
-        let userId = ''
+      return yield* runTransaction(function* loginWithOAuthTransaction() {
+        if (!account) {
+          let userId = ''
 
-        let user = yield* userRepository.findBy({ email: input.email })
-        if (user) userId = user.id
-        else {
-          user = User.create({
-            username: input.name,
-            email: input.email,
-            image: input.image,
+          let user = yield* userRepository.findBy({ email: input.email })
+          if (user) userId = user.id
+          else {
+            user = User.create({
+              username: input.name,
+              email: input.email,
+              image: input.image,
+            })
+            yield* userRepository.save(user)
+
+            userId = user.id
+          }
+
+          account = Account.create({
+            provider: input.provider,
+            providerAccountId: input.id,
+            password: null,
+            userId,
           })
-          yield* userRepository.save(user)
-          userId = user.id
+          yield* accountRepository.save(account)
         }
 
-        account = Account.create({
-          provider: input.provider,
-          providerAccountId: input.id,
-          password: null,
-          userId,
-        })
-        yield* accountRepository.save(account)
-      }
-
-      return yield* createSession({ userId: account.userId })
+        return yield* createSession({ userId: account.userId })
+      })
     }
 )
 
@@ -108,26 +116,30 @@ export const registerUseCase = createUseCase<
       const accountRepository = yield* AccountRepository
       const userRepository = yield* UserRepository
 
-      const existingAccount = yield* accountRepository.findByProvider({
-        provider: 'credentials',
-        providerAccountId: input.email,
+      const existingUser = yield* userRepository.findBy({ email })
+      if (existingUser) return yield* HttpError.conflict('User already exists')
+
+      return yield* runTransaction(function* registerTransaction() {
+        const user = User.create({ username, email, image: null })
+        yield* userRepository.save(user)
+
+        const existingAccount = yield* accountRepository.findByProvider({
+          provider: 'credentials',
+          providerAccountId: user.id,
+        })
+        if (existingAccount)
+          return yield* HttpError.conflict('User already exists')
+
+        const account = Account.create({
+          provider: 'credentials',
+          providerAccountId: email,
+          password: yield* password.hash(plainPassword),
+          userId: user.id,
+        })
+        yield* accountRepository.save(account)
+
+        return { id: user.id }
       })
-      if (existingAccount)
-        return yield* HttpError.conflict('User already exists')
-
-      const user = User.create({ username, email, image: null })
-      yield* userRepository.save(user)
-
-      const hashedPassword = yield* password.hash(plainPassword)
-      const account = Account.create({
-        provider: 'credentials',
-        providerAccountId: email,
-        password: hashedPassword,
-        userId: user.id,
-      })
-      yield* accountRepository.save(account)
-
-      return { id: user.id }
     }
 )
 
