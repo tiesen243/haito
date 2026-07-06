@@ -1,3 +1,5 @@
+// oxlint-disable typescript/no-this-alias unicorn/no-this-assignment
+import * as Effect from 'effect/Effect'
 import crypto from 'node:crypto'
 
 import { decodeBase64Url, encodeBase64Url } from '@/shared/lib/crypto'
@@ -10,91 +12,103 @@ export class JWT<TValue extends Record<string, unknown>> {
     private readonly algorithm: JWTAlgorithm = 'HS256'
   ) {}
 
-  public async sign(
+  public sign = (
     payloadClaims: TValue,
     options: JWT.Options = {}
-  ): Promise<string> {
-    const header = {
-      alg: this.algorithm,
-      typ: 'JWT',
-      ...options.headers,
-    }
+  ): Effect.Effect<string> => {
+    const self = this
 
-    const payload = { ...payloadClaims } as Record<string, unknown>
+    return Effect.gen(function* signFunc() {
+      const header = { alg: self.algorithm, typ: 'JWT', ...options.headers }
+      const payload = { ...payloadClaims } as Record<string, unknown>
 
-    if (!payload.exp)
-      payload.exp = Math.floor(Date.now() / 1000) + (options.expiresIn ?? 3600)
-    if (options.audiences) payload.aud = options.audiences
-    if (options.subject) payload.sub = options.subject
-    if (options.issuer) payload.iss = options.issuer
-    if (options.jwtId) payload.jti = options.jwtId
-    if (options.notBefore)
-      payload.nbf = Math.floor(options.notBefore.getTime() / 1000)
-    if (options.includeIssuedTimestamp)
-      payload.iat = Math.floor(Date.now() / 1000)
+      if (!payload.exp)
+        payload.exp =
+          Math.floor(Date.now() / 1000) + (options.expiresIn ?? 3600)
+      if (options.audiences) payload.aud = options.audiences
+      if (options.subject) payload.sub = options.subject
+      if (options.issuer) payload.iss = options.issuer
+      if (options.jwtId) payload.jti = options.jwtId
+      if (options.notBefore)
+        payload.nbf = Math.floor(options.notBefore.getTime() / 1000)
+      if (options.includeIssuedTimestamp)
+        payload.iat = Math.floor(Date.now() / 1000)
 
-    const textEncoder = new TextEncoder()
-    const headerPart = encodeBase64Url(
-      textEncoder.encode(JSON.stringify(header))
-    )
-    const payloadPart = encodeBase64Url(
-      textEncoder.encode(JSON.stringify(payload))
-    )
+      const textEncoder = new TextEncoder()
+      const headerPart = encodeBase64Url(
+        textEncoder.encode(JSON.stringify(header))
+      )
+      const payloadPart = encodeBase64Url(
+        textEncoder.encode(JSON.stringify(payload))
+      )
 
-    const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
-    const signature = await this.signData(data)
-    const signaturePart = encodeBase64Url(new Uint8Array(signature))
+      const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
+      const signature = yield* self.signData(data)
+      const signaturePart = encodeBase64Url(new Uint8Array(signature))
 
-    return `${headerPart}.${payloadPart}.${signaturePart}`
+      return `${headerPart}.${payloadPart}.${signaturePart}`
+    })
   }
 
-  public async verify(token: string): Promise<TValue & JWT.Header> {
-    const [headerPart, payloadPart, signaturePart] = token.split('.')
-    if (!headerPart || !payloadPart || !signaturePart)
-      throw new Error('Invalid token format')
+  public verify = (token: string): Effect.Effect<TValue & JWT.Header> => {
+    const self = this
 
-    const textEncoder = new TextEncoder()
-    const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
+    return Effect.gen(function* verifyFunc() {
+      const [headerPart, payloadPart, signaturePart] = token.split('.')
+      if (!headerPart || !payloadPart || !signaturePart)
+        throw new Error('Invalid token format')
 
-    const expectedSignature = await this.signData(data)
+      const textEncoder = new TextEncoder()
+      const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
 
-    const expectedSignaturePart = encodeBase64Url(
-      new Uint8Array(expectedSignature)
-    )
-    if (expectedSignaturePart !== signaturePart)
-      throw new Error('Invalid token signature')
+      const expectedSignature = yield* self.signData(data)
 
-    const payloadJson = new TextDecoder().decode(decodeBase64Url(payloadPart))
-    const headerJson = new TextDecoder().decode(decodeBase64Url(headerPart))
+      const expectedSignaturePart = encodeBase64Url(
+        new Uint8Array(expectedSignature)
+      )
+      if (expectedSignaturePart !== signaturePart)
+        throw new Error('Invalid token signature')
 
-    const payload = JSON.parse(payloadJson) as TValue & JWT.Header
-    const header = JSON.parse(headerJson) as Record<string, unknown>
+      const payloadJson = new TextDecoder().decode(decodeBase64Url(payloadPart))
+      const headerJson = new TextDecoder().decode(decodeBase64Url(headerPart))
 
-    const currentTime = Math.floor(Date.now() / 1000)
-    if (payload.exp && currentTime >= payload.exp)
-      throw new Error('Token has expired')
-    if (payload.nbf && currentTime < payload.nbf)
-      throw new Error('Token not valid yet')
+      const payload = JSON.parse(payloadJson) as TValue & JWT.Header
+      const header = JSON.parse(headerJson) as Record<string, unknown>
 
-    return { ...payload, ...header }
+      const currentTime = Math.floor(Date.now() / 1000)
+      if (payload.exp && currentTime >= payload.exp)
+        throw new Error('Token has expired')
+      if (payload.nbf && currentTime < payload.nbf)
+        throw new Error('Token not valid yet')
+
+      return { ...payload, ...header }
+    })
   }
 
-  private async signData(data: Uint8Array): Promise<ArrayBuffer> {
-    const algMap = {
-      HS256: { name: 'SHA-256' },
-      HS384: { name: 'SHA-384' },
-      HS512: { name: 'SHA-512' },
-    } as const
+  private signData = (data: Uint8Array): Effect.Effect<ArrayBuffer> => {
+    const self = this
 
-    const key = await crypto.subtle.importKey(
-      'raw',
-      new TextEncoder().encode(this.secret),
-      { name: 'HMAC', hash: algMap[this.algorithm] },
-      false,
-      ['sign']
-    )
+    return Effect.gen(function* signDataFunc() {
+      const algMap = {
+        HS256: { name: 'SHA-256' },
+        HS384: { name: 'SHA-384' },
+        HS512: { name: 'SHA-512' },
+      } as const
 
-    return crypto.subtle.sign('HMAC', key, data as Uint8Array<ArrayBuffer>)
+      const key = yield* Effect.promise(() =>
+        crypto.subtle.importKey(
+          'raw',
+          new TextEncoder().encode(self.secret),
+          { name: 'HMAC', hash: algMap[self.algorithm] },
+          false,
+          ['sign']
+        )
+      )
+
+      return yield* Effect.promise(() =>
+        crypto.subtle.sign('HMAC', key, data as Uint8Array<ArrayBuffer>)
+      )
+    })
   }
 }
 

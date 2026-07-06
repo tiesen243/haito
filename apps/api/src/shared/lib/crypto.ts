@@ -1,5 +1,7 @@
 // oxlint-disable no-bitwise, no-plusplus
 
+import * as Effect from 'effect/Effect'
+
 export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.byteLength !== b.byteLength) return false
 
@@ -29,24 +31,30 @@ export function generateStateOrCode(): string {
     .replaceAll(/[=]/g, '')
 }
 
-export async function generateCodeChallenge(
+export const generateCodeChallenge = (
   codeVerifier: string
-): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(codeVerifier)
-  const digest = await crypto.subtle.digest('SHA-256', data)
-  const base64String = btoa(String.fromCodePoint(...new Uint8Array(digest)))
-  return base64String
-    .replaceAll('+', '-')
-    .replaceAll('/', '_')
-    .replaceAll(/[=]/g, '')
-}
+): Effect.Effect<string> =>
+  Effect.gen(function* generateCodeChallengeFunc() {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(codeVerifier)
+    const digest = yield* Effect.promise(() =>
+      crypto.subtle.digest('SHA-256', data)
+    )
+    const base64String = btoa(String.fromCodePoint(...new Uint8Array(digest)))
+    return base64String
+      .replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll(/[=]/g, '')
+  })
 
-export async function hashSecret(secret: string): Promise<Uint8Array> {
-  const secretBytes = new TextEncoder().encode(secret)
-  const secretHashBuffer = await crypto.subtle.digest('SHA-256', secretBytes)
-  return new Uint8Array(secretHashBuffer)
-}
+export const hashSecret = (secret: string): Effect.Effect<Uint8Array> =>
+  Effect.gen(function* hashSecretFunc() {
+    const secretBytes = new TextEncoder().encode(secret)
+    const secretHashBuffer = yield* Effect.promise(() =>
+      crypto.subtle.digest('SHA-256', secretBytes)
+    )
+    return new Uint8Array(secretHashBuffer)
+  })
 
 export function encodeHex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join(

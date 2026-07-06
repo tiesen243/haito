@@ -7,7 +7,11 @@ export namespace LoginDto {
   })
   export type Input = z.infer<typeof input>
 
-  export const output = z.object({ id: z.string() })
+  export const output = z.object({
+    accessToken: z.string(),
+    refreshToken: z.string(),
+    expiresAt: z.date(),
+  })
   export type Output = z.infer<typeof output>
 }
 

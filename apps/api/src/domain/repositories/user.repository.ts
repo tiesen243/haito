@@ -10,6 +10,8 @@ export class UserRepository extends Context.Tag(
 )<
   UserRepository,
   {
+    findById: (id: User['id']) => Effect.Effect<User | null, HttpError>
+
     save: (user: User) => Effect.Effect<void, HttpError>
   }
 >() {}

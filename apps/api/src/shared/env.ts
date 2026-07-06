@@ -14,6 +14,8 @@ export const env = createEnv({
     DATABASE_URL: z
       .string()
       .default('postgresql://postgres:secret@127.0.0.1:5432/db'),
+
+    AUTH_SECRET: z.string().default('secret'),
   },
 
   clientPrefix: 'PUBLIC_',
