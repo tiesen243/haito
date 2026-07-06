@@ -5,18 +5,25 @@ import * as Layer from 'effect/Layer'
 import * as ManagedRuntime from 'effect/ManagedRuntime'
 import { Elysia } from 'elysia'
 
+import type { BaseProvider } from '@/infrastructure/oauth/providers/base'
+
 import { InfrastructureModule } from '@/infrastructure/infrastructure.module'
 import { HttpError } from '@/shared/http-error'
 
 export function bootstrap<TPrefix extends string>({
   persistenceDriver,
+  providers,
   ...config
 }: BootstrapConfig & ElysiaConfig<TPrefix>) {
   const infrastructureModule = InfrastructureModule.create({
     persistenceDriver,
+    providers,
   })
 
-  const appLayer = Layer.mergeAll(infrastructureModule.persistence)
+  const appLayer = Layer.mergeAll(
+    infrastructureModule.persistence,
+    infrastructureModule.oauth
+  )
 
   const runtime = <A>(effect: Effect.Effect<A, HttpError<A>, never>) =>
     ManagedRuntime.make(appLayer).runPromise(
@@ -39,4 +46,5 @@ export function bootstrap<TPrefix extends string>({
 
 export interface BootstrapConfig {
   persistenceDriver: 'in-memory' | 'drizzle'
+  providers: BaseProvider[]
 }

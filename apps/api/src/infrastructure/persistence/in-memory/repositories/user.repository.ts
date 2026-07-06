@@ -11,8 +11,18 @@ export const InMemoryUserRepository = Layer.effect(
     const { users } = yield* InMemoryClient
 
     return {
-      findById: (id) =>
-        Ref.get(users).pipe(Effect.map((map) => map.get(id) ?? null)),
+      findBy: (criteria) =>
+        Ref.get(users).pipe(
+          Effect.map((map) => 
+            (
+              [...map.values()].find((user) =>
+                Object.entries(criteria).every(
+                  ([key, value]) => user[key as keyof typeof user] === value
+                )
+              ) ?? null
+            )
+          )
+        ),
 
       save: (user) =>
         Ref.update(users, (map) => map.set(user.id, user)).pipe(Effect.asVoid),

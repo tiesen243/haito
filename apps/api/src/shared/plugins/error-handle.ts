@@ -15,6 +15,7 @@ export const errorHandle = new Elysia({
       case 'VALIDATION':
         return HttpError.badRequest('Validation failed', error.all)
       default:
+        console.error('Unexpected error:', error)
         return HttpError.internalServerError(
           'An unexpected error occurred',
           error

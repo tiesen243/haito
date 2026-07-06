@@ -3,6 +3,7 @@ import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
 
 import pkgJson from '@/../package.json' with { type: 'json' }
 import { bootstrap } from '@/bootstrap'
+import { Google } from '@/infrastructure/oauth/providers/google'
 import { authController } from '@/presentation/http/auth.controller'
 import { env } from '@/shared/env'
 import { errorHandle } from '@/shared/plugins/error-handle'
@@ -20,6 +21,7 @@ const server = bootstrap({
   },
 
   persistenceDriver: 'in-memory',
+  providers: [new Google(env.AUTH_GOOGLE_ID, env.AUTH_GOOGLE_SECRET)],
 })
   // Register plugins
   .use(errorHandle)

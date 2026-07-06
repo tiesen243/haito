@@ -1,4 +1,5 @@
 import type { LoginDto, RegisterDto } from '@/application/dto/auth.dto'
+import type { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
 
 import { Account } from '@/domain/entities/account.entity'
 import { Session } from '@/domain/entities/session.entity'
@@ -28,7 +29,7 @@ export const whoamiUseCase = createUseCase<{ token: string }, User>(
       const { sub } = yield* jwt.verify(token)
       if (!sub) return yield* HttpError.unauthorized('Invalid token')
 
-      const user = yield* userRepository.findById(sub)
+      const user = yield* userRepository.findBy({ id: sub })
       if (!user) return yield* HttpError.notFound('User not found')
 
       return user
@@ -49,6 +50,48 @@ export const loginUseCase = createUseCase<LoginDto.Input, LoginDto.Output>(
 
       const isValid = yield* password.verify(account.password, input.password)
       if (!isValid) return yield* HttpError.unauthorized('Invalid credentials')
+
+      return yield* createSession({ userId: account.userId })
+    }
+)
+
+export const loginWithOAuthUseCase = createUseCase<
+  InfrastructureOAuthModule.User & { provider: string },
+  LoginDto.Output
+>(
+  (input) =>
+    function* loginWithOAuthUseCaseFunc() {
+      const accountRepository = yield* AccountRepository
+      const userRepository = yield* UserRepository
+
+      let account = yield* accountRepository.findByProvider({
+        provider: input.provider,
+        providerAccountId: input.id,
+      })
+
+      if (!account) {
+        let userId = ''
+
+        let user = yield* userRepository.findBy({ email: input.email })
+        if (user) userId = user.id
+        else {
+          user = User.create({
+            username: input.name,
+            email: input.email,
+            image: input.image,
+          })
+          yield* userRepository.save(user)
+          userId = user.id
+        }
+
+        account = Account.create({
+          provider: input.provider,
+          providerAccountId: input.id,
+          password: null,
+          userId,
+        })
+        yield* accountRepository.save(account)
+      }
 
       return yield* createSession({ userId: account.userId })
     }
@@ -120,5 +163,6 @@ const createSession = createUseCase<{ userId: string }, LoginDto.Output>(
 export default {
   whoami: whoamiUseCase,
   login: loginUseCase,
+  loginWithOAuth: loginWithOAuthUseCase,
   register: registerUseCase,
 }
