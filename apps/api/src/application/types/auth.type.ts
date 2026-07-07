@@ -21,5 +21,3 @@ export const AuthSchema = {
     redirect_uri: t.Optional(t.String()),
   }),
 }
-
-export type AuthSchema = typeof AuthSchema

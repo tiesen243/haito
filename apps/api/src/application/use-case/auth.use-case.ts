@@ -80,7 +80,7 @@ export const loginWithOAuthUseCase = createUseCase<
           let user = yield* userRepository.findBy({ email: input.email })
           if (user) userId = user.id
           else {
-            user = User.create({
+            user = User.make({
               username: input.name,
               email: input.email,
               image: input.image,
@@ -90,7 +90,7 @@ export const loginWithOAuthUseCase = createUseCase<
             userId = user.id
           }
 
-          account = Account.create({
+          account = Account.make({
             provider: input.provider,
             providerAccountId: input.id,
             password: null,
@@ -119,7 +119,7 @@ export const registerUseCase = createUseCase<
       if (existingUser) return yield* HttpError.conflict('User already exists')
 
       return yield* runTransaction(function* registerTransaction() {
-        const user = User.create({ username, email, image: null })
+        const user = User.make({ username, email, image: null })
         yield* userRepository.save(user)
 
         const existingAccount = yield* accountRepository.findByProvider({
@@ -129,7 +129,7 @@ export const registerUseCase = createUseCase<
         if (existingAccount)
           return yield* HttpError.conflict('User already exists')
 
-        const account = Account.create({
+        const account = Account.make({
           provider: 'credentials',
           providerAccountId: user.id,
           password: yield* password.hash(plainPassword),
@@ -154,7 +154,7 @@ const createSession = createUseCase<{ userId: string }, LoginDto.Output>(
       const refreshToken = `${id}.${secret}`
       const expiresAt = new Date(Date.now() + 60 * 60 * 24 * 7 * 1000) // 7 days
 
-      const session = Session.create({
+      const session = Session.make({
         id,
         userId,
         token: encodeHex(hashedSecret),

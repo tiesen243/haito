@@ -48,33 +48,37 @@ export function effetch<TData = unknown>(
   })
 }
 
-export const runTransaction = <A, E>(
+export const runTransaction = <A, E, R>(
   transaction: () => Generator<YieldWrap<unknown>, A, never>
-): Effect.Effect<A, E | HttpError, DrizzleClient> =>
-  Effect.all({
-    maybeDrizzle: Effect.serviceOption(DrizzleClient),
-  }).pipe(
-    Effect.flatMap(({ maybeDrizzle }) => {
-      if (Option.isSome(maybeDrizzle)) {
-        const { db } = maybeDrizzle.value
-        return Effect.suspend(() => {
-          const promise = db.transaction((tx) => {
-            const client = DrizzleClient.make(tx as never)
-            const program = Effect.provideService(
-              DrizzleClient,
-              client
-            )(Effect.gen(transaction as never))
-            return Effect.runPromise(program as Effect.Effect<A, E, never>)
-          })
-
-          return Effect.tryPromise({
-            try: () => promise,
-            catch: (e) =>
-              HttpError.internalServerError('Drizzle transaction failed', e),
-          })
-        })
-      }
-
-      return Effect.gen(transaction as never)
+): Effect.Effect<A, E | HttpError, Exclude<R, DrizzleClient>> =>
+  Effect.gen(function* runTransactionFunc() {
+    const context = yield* Effect.context<R>()
+    const { maybeDrizzle } = yield* Effect.all({
+      maybeDrizzle: Effect.serviceOption(DrizzleClient),
+      // maybePrisma: Effect.serviceOption(PrismaClient),
     })
-  )
+
+    const effectProgram = Effect.gen(transaction as never)
+
+    if (Option.isSome(maybeDrizzle)) {
+      const { db } = maybeDrizzle.value
+
+      const promise = db.transaction((tx) => {
+        const client = DrizzleClient.make(tx as never)
+
+        const program = effectProgram.pipe(
+          Effect.provide(context),
+          Effect.provideService(DrizzleClient, client)
+        )
+        return Effect.runPromise(program as Effect.Effect<A, E>)
+      })
+
+      return yield* Effect.tryPromise({
+        try: () => promise,
+        catch: (e) =>
+          HttpError.internalServerError('Drizzle transaction failed', e),
+      })
+    }
+
+    return yield* effectProgram
+  }) as Effect.Effect<A, E | HttpError, Exclude<R, DrizzleClient>>
