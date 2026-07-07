@@ -1,4 +1,5 @@
 import * as Context from 'effect/Context'
+import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Ref from 'effect/Ref'
 
@@ -16,15 +17,14 @@ export class InMemoryClient extends Context.Tag(
     sessions: Ref.Ref<Map<Session['id'], Session>>
   }
 >() {
-  private static _accounts = Ref.unsafeMake<Map<string, Account>>(new Map())
-  private static _users = Ref.unsafeMake<Map<User['id'], User>>(new Map())
-  private static _sessions = Ref.unsafeMake<Map<Session['id'], Session>>(
-    new Map()
+  public static live = Layer.effect(
+    InMemoryClient,
+    Effect.gen(function* liveImpl() {
+      return {
+        accounts: yield* Ref.make<Map<string, Account>>(new Map()),
+        users: yield* Ref.make<Map<User['id'], User>>(new Map()),
+        sessions: yield* Ref.make<Map<Session['id'], Session>>(new Map()),
+      }
+    })
   )
-
-  public static live = Layer.succeed(InMemoryClient, {
-    accounts: this._accounts,
-    sessions: this._sessions,
-    users: this._users,
-  })
 }

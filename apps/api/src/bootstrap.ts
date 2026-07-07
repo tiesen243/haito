@@ -20,13 +20,12 @@ export function bootstrap<TPrefix extends string>({
     providers,
   })
 
-  const appLayer = Layer.mergeAll(
-    infrastructureModule.persistence,
-    infrastructureModule.oauth
+  const appRuntime = ManagedRuntime.make(
+    Layer.mergeAll(infrastructureModule.persistence, infrastructureModule.oauth)
   )
 
   const runtime = <A>(effect: Effect.Effect<A, HttpError<A>, never>) =>
-    ManagedRuntime.make(appLayer).runPromise(
+    appRuntime.runPromise(
       effect.pipe(
         Effect.map((data) => new HttpError({ data })),
         Effect.catchTag('shared/HttpError', (e) =>
