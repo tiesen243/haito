@@ -3,12 +3,7 @@ import { Elysia } from 'elysia'
 
 import { LoginDto, RegisterDto } from '@/application/dto/auth.dto'
 import { AuthSchema } from '@/application/types'
-import {
-  loginUseCase,
-  loginWithOAuthUseCase,
-  registerUseCase,
-  whoamiUseCase,
-} from '@/application/use-case/auth.use-case'
+import { AuthUseCase } from '@/application/use-case/auth.use-case'
 import { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
 import { authMiddleware } from '@/presentation/middleware/auth.middleware'
 import { HttpError } from '@/shared/http-error'
@@ -21,13 +16,13 @@ export const authController = new Elysia({
 })
 
   .group('', (app) =>
-    app.use(authMiddleware).get('/whoami', () => whoamiUseCase())
+    app.use(authMiddleware).get('/whoami', () => AuthUseCase.whoami())
   )
 
   .post(
     '/login',
     ({ body, cookie }) =>
-      loginUseCase(body).pipe(
+      AuthUseCase.login(body).pipe(
         Effect.tap(({ accessToken, refreshToken, expiresAt: expires }) => {
           cookie['auth.access_token'].set({ value: accessToken })
           cookie['auth.refresh_token'].set({ value: refreshToken, expires })
@@ -39,7 +34,7 @@ export const authController = new Elysia({
     }
   )
 
-  .post('/register', ({ body }) => registerUseCase(body), {
+  .post('/register', ({ body }) => AuthUseCase.register(body), {
     body: RegisterDto.input,
   })
 
@@ -85,7 +80,7 @@ export const authController = new Elysia({
         cookie['auth.code'].remove()
         cookie['auth.redirect_uri'].remove()
 
-        return yield* loginWithOAuthUseCase({
+        return yield* AuthUseCase.loginWithOAuth({
           ...user,
           provider: params.provider,
         }).pipe(

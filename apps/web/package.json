@@ -13,7 +13,7 @@
     "@haito/lib": "workspace:*",
     "@haito/ui": "workspace:*",
     "@tanstack/react-query": "catalog:prod",
-    "isbot": "^5.1.43",
+    "isbot": "^5.2.0",
     "next-themes": "catalog:prod",
     "react": "catalog:react",
     "react-dom": "catalog:react",
@@ -29,6 +29,6 @@
     "@types/react-dom": "catalog:react",
     "tailwindcss": "catalog:tailwind",
     "typescript": "catalog:dev",
-    "vite": "^8.1.2"
+    "vite": "^8.1.3"
   }
 }
