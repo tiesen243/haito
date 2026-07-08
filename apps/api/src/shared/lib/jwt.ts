@@ -16,11 +16,9 @@ export class JWT<TValue extends Record<string, unknown>> {
   public sign = (
     payloadClaims: TValue,
     options: JWT.Options = {}
-  ): Effect.Effect<string> => {
-    const self = this
-
-    return Effect.gen(function* signFunc() {
-      const header = { alg: self.algorithm, typ: 'JWT', ...options.headers }
+  ): Effect.Effect<string> =>
+    Effect.gen(this, function* signFunc() {
+      const header = { alg: this.algorithm, typ: 'JWT', ...options.headers }
       const payload = { ...payloadClaims } as Record<string, unknown>
 
       if (!payload.exp)
@@ -44,19 +42,16 @@ export class JWT<TValue extends Record<string, unknown>> {
       )
 
       const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
-      const signature = yield* self.signData(data)
+      const signature = yield* this.signData(data)
       const signaturePart = encodeBase64Url(new Uint8Array(signature))
 
       return `${headerPart}.${payloadPart}.${signaturePart}`
     })
-  }
 
   public verify = (
     token: string
-  ): Effect.Effect<TValue & JWT.Header, HttpError> => {
-    const self = this
-
-    return Effect.gen(function* verifyFunc() {
+  ): Effect.Effect<TValue & JWT.Header, HttpError> =>
+    Effect.gen(this, function* verifyFunc() {
       const [headerPart, payloadPart, signaturePart] = token.split('.')
       if (!headerPart || !payloadPart || !signaturePart)
         return yield* HttpError.badRequest('Invalid token format')
@@ -64,7 +59,7 @@ export class JWT<TValue extends Record<string, unknown>> {
       const textEncoder = new TextEncoder()
       const data = textEncoder.encode(`${headerPart}.${payloadPart}`)
 
-      const expectedSignature = yield* self.signData(data)
+      const expectedSignature = yield* this.signData(data)
 
       const expectedSignaturePart = encodeBase64Url(
         new Uint8Array(expectedSignature)
@@ -87,12 +82,9 @@ export class JWT<TValue extends Record<string, unknown>> {
 
       return { ...payload, ...header }
     })
-  }
 
-  private signData = (data: Uint8Array): Effect.Effect<ArrayBuffer> => {
-    const self = this
-
-    return Effect.gen(function* signDataFunc() {
+  private signData = (data: Uint8Array): Effect.Effect<ArrayBuffer> =>
+    Effect.gen(this, function* signDataFunc() {
       const algMap = {
         HS256: { name: 'SHA-256' },
         HS384: { name: 'SHA-384' },
@@ -102,8 +94,8 @@ export class JWT<TValue extends Record<string, unknown>> {
       const key = yield* Effect.promise(() =>
         crypto.subtle.importKey(
           'raw',
-          new TextEncoder().encode(self.secret),
-          { name: 'HMAC', hash: algMap[self.algorithm] },
+          new TextEncoder().encode(this.secret),
+          { name: 'HMAC', hash: algMap[this.algorithm] },
           false,
           ['sign']
         )
@@ -113,7 +105,6 @@ export class JWT<TValue extends Record<string, unknown>> {
         crypto.subtle.sign('HMAC', key, data as Uint8Array<ArrayBuffer>)
       )
     })
-  }
 }
 
 export namespace JWT {

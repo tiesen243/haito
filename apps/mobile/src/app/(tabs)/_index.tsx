@@ -1,13 +1,7 @@
 import type { ListPostsModel } from '@haito/validators/models/post'
 
 import { Button } from '@haito/ui/button'
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@haito/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@haito/ui/card'
 import {
   Field,
   FieldError,

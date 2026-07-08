@@ -1,38 +1,27 @@
 import type { LoginDto, RegisterDto } from '@/application/dto/auth.dto'
 import type { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
 
+import { Auth } from '@/application/context'
 import { Account } from '@/domain/entities/account.entity'
 import { Session } from '@/domain/entities/session.entity'
 import { User } from '@/domain/entities/user.entity'
 import { AccountRepository } from '@/domain/repositories/account.repository'
 import { SessionRepository } from '@/domain/repositories/session.repository'
 import { UserRepository } from '@/domain/repositories/user.repository'
-import { env } from '@/shared/env'
 import { HttpError } from '@/shared/http-error'
 import {
   encodeHex,
   generateSecureString,
   hashSecret,
 } from '@/shared/lib/crypto'
-import { JWT } from '@/shared/lib/jwt'
-import { Password } from '@/shared/lib/password'
 import { createUseCase, runTransaction } from '@/shared/lib/utils'
 
-const password = new Password()
-const jwt = new JWT(env.AUTH_SECRET)
-
-export const whoamiUseCase = createUseCase<{ token: string }, User>(
-  ({ token }) =>
+// oxlint-disable-next-line typescript/no-invalid-void-type
+export const whoamiUseCase = createUseCase<void, User>(
+  () =>
+    // oxlint-disable-next-line unicorn/consistent-function-scoping
     function* whoamiUseCaseFunc() {
-      const userRepository = yield* UserRepository
-
-      const { sub } = yield* jwt.verify(token)
-      if (!sub) return yield* HttpError.unauthorized('Invalid token')
-
-      const [user] = yield* userRepository.find([{ id: sub }])
-      if (!user) return yield* HttpError.notFound('User not found')
-
-      return user
+      return yield* Auth
     }
 )
 
@@ -52,7 +41,10 @@ export const loginUseCase = createUseCase<LoginDto.Input, LoginDto.Output>(
       if (!account || !account.password)
         return yield* HttpError.unauthorized('Invalid credentials')
 
-      const isValid = yield* password.verify(account.password, input.password)
+      const isValid = yield* Auth.password.verify(
+        account.password,
+        input.password
+      )
       if (!isValid) return yield* HttpError.unauthorized('Invalid credentials')
 
       return yield* createSession({ userId: account.userId })
@@ -126,7 +118,7 @@ export const registerUseCase = createUseCase<
         const account = Account.make({
           provider: 'credentials',
           providerAccountId: user.id,
-          password: yield* password.hash(plainPassword),
+          password: yield* Auth.password.hash(plainPassword),
           userId: user.id,
         })
         yield* accountRepository.save(account)
@@ -156,7 +148,7 @@ const createSession = createUseCase<{ userId: string }, LoginDto.Output>(
       })
       yield* sessionRepository.save(session)
 
-      const accessToken = yield* jwt.sign(
+      const accessToken = yield* Auth.jwt.sign(
         { sub: userId },
         { expiresIn: 15 * 60 } // 15 minutes
       )
@@ -164,10 +156,3 @@ const createSession = createUseCase<{ userId: string }, LoginDto.Output>(
       return { accessToken, refreshToken, expiresAt }
     }
 )
-
-export default {
-  whoami: whoamiUseCase,
-  login: loginUseCase,
-  loginWithOAuth: loginWithOAuthUseCase,
-  register: registerUseCase,
-}

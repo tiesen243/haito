@@ -36,10 +36,10 @@ export function bootstrap<TPrefix extends string>({
 
   return new Elysia({
     ...config,
-  }).onAfterHandle(({ responseValue }) => {
+  }).mapResponse(({ responseValue }) => {
     if (Effect.isEffect(responseValue))
       return runtime(responseValue as never) as never
-    return responseValue
+    return responseValue as never
   })
 }
 

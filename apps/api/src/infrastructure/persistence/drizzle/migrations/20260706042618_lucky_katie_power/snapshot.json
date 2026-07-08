@@ -2,9 +2,7 @@
   "version": "8",
   "dialect": "postgres",
   "id": "8e0fcf89-82b9-4429-b023-d74f840720f5",
-  "prevIds": [
-    "00000000-0000-0000-0000-000000000000"
-  ],
+  "prevIds": ["00000000-0000-0000-0000-000000000000"],
   "ddl": [
     {
       "isRlsEnabled": false,
@@ -305,14 +303,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "accounts_user_id_users_id_fkey",
@@ -322,14 +316,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "sessions_user_id_users_id_fkey",
@@ -338,10 +328,7 @@
       "table": "sessions"
     },
     {
-      "columns": [
-        "provider",
-        "provider_account_id"
-      ],
+      "columns": ["provider", "provider_account_id"],
       "nameExplicit": false,
       "name": "accounts_pkey",
       "entityType": "pks",
@@ -349,9 +336,7 @@
       "table": "accounts"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "sessions_pkey",
       "schema": "public",
@@ -359,9 +344,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "users_pkey",
       "schema": "public",

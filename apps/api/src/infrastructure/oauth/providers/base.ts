@@ -38,12 +38,12 @@ export abstract class BaseProvider {
     return `${baseUrl}/api/auth/${this.providerName}/callback`
   }
 
-  protected createAuthorizationUrlWithoutPKCE(
+  protected createAuthorizationUrlWithoutPKCE = (
     endpoint: string,
     state: string,
     scopes: string[]
-  ): Effect.Effect<URL, never, never> {
-    return Effect.gen(this, function* createAuthorizationUrlWithoutPKCEFunc() {
+  ): Effect.Effect<URL, never, never> =>
+    Effect.gen(this, function* createAuthorizationUrlWithoutPKCEFunc() {
       const url = new URL(endpoint)
       url.searchParams.set('response_type', 'code')
       url.searchParams.set('client_id', this.clientId)
@@ -54,16 +54,15 @@ export abstract class BaseProvider {
 
       return yield* Effect.succeed(url)
     })
-  }
 
-  protected createAuthorizationUrlWithPKCE(
+  protected createAuthorizationUrlWithPKCE = (
     endpoint: string,
     state: string,
     scopes: string[],
     codeVerifier: string,
     codeChallengeMethod: 'S256' | 'plain' = 'S256'
-  ): Effect.Effect<URL> {
-    return Effect.gen(this, function* createAuthorizationUrlWithPKCEFunc() {
+  ): Effect.Effect<URL> =>
+    Effect.gen(this, function* createAuthorizationUrlWithPKCEFunc() {
       const url = yield* this.createAuthorizationUrlWithoutPKCE(
         endpoint,
         state,
@@ -81,14 +80,13 @@ export abstract class BaseProvider {
 
       return url
     })
-  }
 
-  protected validateAuthorizationCode(
+  protected validateAuthorizationCode = (
     endpoint: string,
     code: string,
     codeVerifier: string | null = null
-  ): Effect.Effect<InfrastructureOAuthModule.Token, HttpError, never> {
-    return Effect.gen(this, function* validateAuthorizationCodeFunc() {
+  ): Effect.Effect<InfrastructureOAuthModule.Token, HttpError, never> =>
+    Effect.gen(this, function* validateAuthorizationCodeFunc() {
       const body = new URLSearchParams()
       body.set('grant_type', 'authorization_code')
       body.set('redirect_uri', this.redirectUri)
@@ -107,7 +105,6 @@ export abstract class BaseProvider {
 
       return yield* effetch<InfrastructureOAuthModule.Token>(request)
     })
-  }
 
   private createRequest(enpoint: string, body: URLSearchParams) {
     const bodyBytes = new TextEncoder().encode(body.toString())

@@ -2,9 +2,15 @@ import * as Effect from 'effect/Effect'
 import { Elysia } from 'elysia'
 
 import { LoginDto, RegisterDto } from '@/application/dto/auth.dto'
-import { AuthSchema } from '@/application/types/auth.type'
-import usecase from '@/application/use-case/auth.use-case'
+import { AuthSchema } from '@/application/types'
+import {
+  loginUseCase,
+  loginWithOAuthUseCase,
+  registerUseCase,
+  whoamiUseCase,
+} from '@/application/use-case/auth.use-case'
 import { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
+import { authMiddleware } from '@/presentation/middleware/auth.middleware'
 import { HttpError } from '@/shared/http-error'
 import { generateStateOrCode } from '@/shared/lib/crypto'
 
@@ -14,22 +20,14 @@ export const authController = new Elysia({
   tags: ['auth'],
 })
 
-  .get(
-    '/whoami',
-    ({ cookie, headers }) => {
-      const token =
-        headers.authorization?.replace('Bearer ', '') ??
-        cookie['auth.access_token'].value ??
-        ''
-      return usecase.whoami({ token })
-    },
-    AuthSchema
+  .group('', (app) =>
+    app.use(authMiddleware).get('/whoami', () => whoamiUseCase())
   )
 
   .post(
     '/login',
     ({ body, cookie }) =>
-      usecase.login(body).pipe(
+      loginUseCase(body).pipe(
         Effect.tap(({ accessToken, refreshToken, expiresAt: expires }) => {
           cookie['auth.access_token'].set({ value: accessToken })
           cookie['auth.refresh_token'].set({ value: refreshToken, expires })
@@ -41,7 +39,7 @@ export const authController = new Elysia({
     }
   )
 
-  .post('/register', ({ body }) => usecase.register(body), {
+  .post('/register', ({ body }) => registerUseCase(body), {
     body: RegisterDto.input,
   })
 
@@ -87,27 +85,25 @@ export const authController = new Elysia({
         cookie['auth.code'].remove()
         cookie['auth.redirect_uri'].remove()
 
-        return yield* usecase
-          .loginWithOAuth({
-            ...user,
-            provider: params.provider,
+        return yield* loginWithOAuthUseCase({
+          ...user,
+          provider: params.provider,
+        }).pipe(
+          Effect.tap(({ accessToken, refreshToken, expiresAt: expires }) => {
+            cookie['auth.access_token'].set({ value: accessToken })
+            cookie['auth.refresh_token'].set({ value: refreshToken, expires })
+          }),
+          Effect.flatMap(({ accessToken, refreshToken }) => {
+            const url = new URL(redirectUri, request.url)
+
+            if (!redirectUri.startsWith('/')) {
+              url.searchParams.set('access_token', accessToken)
+              url.searchParams.set('refresh_token', refreshToken)
+            }
+
+            return HttpError.redirect(url.href)
           })
-          .pipe(
-            Effect.tap(({ accessToken, refreshToken, expiresAt: expires }) => {
-              cookie['auth.access_token'].set({ value: accessToken })
-              cookie['auth.refresh_token'].set({ value: refreshToken, expires })
-            }),
-            Effect.flatMap(({ accessToken, refreshToken }) => {
-              const url = new URL(redirectUri, request.url)
-
-              if (!redirectUri.startsWith('/')) {
-                url.searchParams.set('access_token', accessToken)
-                url.searchParams.set('refresh_token', refreshToken)
-              }
-
-              return HttpError.redirect(url.href)
-            })
-          )
+        )
       }),
     AuthSchema
   )

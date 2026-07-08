@@ -27,6 +27,7 @@ export class InfrastructureOAuthModule extends Context.Tag(
         Effect.gen(function* forProviderFunc() {
           for (const provider of providers)
             if (provider.providerName === providerName) return provider
+
           return yield* HttpError.badRequest(
             `Unsupported provider: ${providerName}`
           )
