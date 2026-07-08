@@ -22,16 +22,13 @@ export class JWT<TValue extends Record<string, unknown>> {
       const payload = { ...payloadClaims } as Record<string, unknown>
 
       if (!payload.exp)
-        payload.exp =
-          Math.floor(Date.now() / 1000) + (options.expiresIn ?? 3600)
+        payload.exp = Date.now() + (options.expiresIn ?? 3_600_000)
       if (options.audiences) payload.aud = options.audiences
       if (options.subject) payload.sub = options.subject
       if (options.issuer) payload.iss = options.issuer
       if (options.jwtId) payload.jti = options.jwtId
-      if (options.notBefore)
-        payload.nbf = Math.floor(options.notBefore.getTime() / 1000)
-      if (options.includeIssuedTimestamp)
-        payload.iat = Math.floor(Date.now() / 1000)
+      if (options.notBefore) payload.nbf = options.notBefore.getTime()
+      if (options.includeIssuedTimestamp) payload.iat = Date.now()
 
       const textEncoder = new TextEncoder()
       const headerPart = encodeBase64Url(
@@ -72,8 +69,8 @@ export class JWT<TValue extends Record<string, unknown>> {
 
       const payload = JSON.parse(payloadJson) as TValue & JWT.Header
       const header = JSON.parse(headerJson) as Record<string, unknown>
+      const currentTime = Date.now()
 
-      const currentTime = Math.floor(Date.now() / 1000)
       if (payload.exp && currentTime >= payload.exp)
         return yield* HttpError.unauthorized('Token has expired')
 
@@ -109,7 +106,7 @@ export class JWT<TValue extends Record<string, unknown>> {
 
 export namespace JWT {
   export interface Options {
-    headers?: Record<string, unknown>
+    headers?: JWT.Header
     expiresIn?: number
     issuer?: string
     subject?: string

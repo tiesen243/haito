@@ -138,7 +138,7 @@ const createSession = createUseCase<{ userId: string }, LoginDto.Output>(
       const hashedSecret = yield* hashSecret(secret)
 
       const refreshToken = `${id}.${secret}`
-      const expiresAt = new Date(Date.now() + 60 * 60 * 24 * 7 * 1000) // 7 days
+      const expiresAt = new Date(Date.now() + Auth.sessionTokenExpiration)
 
       const session = Session.make({
         id,
@@ -150,7 +150,7 @@ const createSession = createUseCase<{ userId: string }, LoginDto.Output>(
 
       const accessToken = yield* Auth.jwt.sign(
         { sub: userId },
-        { expiresIn: 15 * 60 } // 15 minutes
+        { expiresIn: Auth.accessTokenExpiration }
       )
 
       return { accessToken, refreshToken, expiresAt }
