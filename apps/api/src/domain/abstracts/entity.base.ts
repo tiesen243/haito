@@ -22,7 +22,9 @@ export class EntityBase extends Schema.Class<EntityBase>(
   public clone(props: Partial<this>): this {
     const constructor = this.constructor as new (props: unknown) => this
     const cleanProps = Object.fromEntries(
-      Object.entries(props).filter(([_, value]) => value)
+      Object.entries(props).filter(
+        ([_, value]) => value !== undefined && value !== ''
+      )
     )
 
     return new constructor({

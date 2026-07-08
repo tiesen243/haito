@@ -4,7 +4,7 @@ import { baseSchema, PaginationSchema } from '@/application/types'
 import { Note } from '@/domain/entities/note.entity'
 
 export const noteSchema = baseSchema.extend({
-  title: z.nullable(z.string()).default('Untitled').optional(),
+  title: z.nullable(z.string()).optional(),
   content: z.string(),
   isPublic: z.boolean(),
   deletedAt: z.nullable(z.date()).default(null).optional(),

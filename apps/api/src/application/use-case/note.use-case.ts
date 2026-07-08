@@ -26,7 +26,7 @@ export class NoteUseCase {
         if (query) whereClause.title = { $like: query }
         if (isPublic === true) whereClause.isPublic = true
         if (userId) whereClause.userId = userId
-        whereClause.deletedAt = { $isNull: deleted === 'false' }
+        whereClause.deletedAt = { $isNull: deleted !== 'true' }
 
         const notes = yield* noteRepository.find(
           [whereClause],
