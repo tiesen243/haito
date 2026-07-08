@@ -64,6 +64,11 @@ function buildCriteria<TEntity>(
       )
         return false
 
+      if ('$isNull' in ops) {
+        if (ops.$isNull && entityValue !== null) return false
+        if (!ops.$isNull && entityValue === null) return false
+      }
+
       if ('$like' in ops && ops.$like !== undefined) {
         const searchStr = String(ops.$like).toLowerCase()
         const currentStr = String(entityValue).toLowerCase()

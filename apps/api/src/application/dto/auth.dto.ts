@@ -26,3 +26,13 @@ export namespace RegisterDto {
   export const output = z.object({ id: z.string() })
   export type Output = z.infer<typeof output>
 }
+
+export namespace RefreshTokenDto {
+  export const input = z.object({
+    refreshToken: z.string(),
+  })
+  export type Input = z.infer<typeof input>
+
+  export const { output } = LoginDto
+  export type Output = z.infer<typeof output>
+}

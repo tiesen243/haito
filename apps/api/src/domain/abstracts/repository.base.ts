@@ -20,7 +20,7 @@ export interface IRepositoryBase<TEntity extends EntityBase> {
 }
 
 export namespace IRepositoryBase {
-  export type Criteria<T> = Partial<Record<keyof T, Operator<T> | string>>
+  export type Criteria<T> = Partial<Record<keyof T, Operator<T> | T[keyof T]>>
 
   export type Operator<T> =
     | { $gt?: T[keyof T] }
@@ -28,6 +28,7 @@ export namespace IRepositoryBase {
     | { $lt?: T[keyof T] }
     | { $lte?: T[keyof T] }
     | { $in?: T[keyof T][] }
+    | { $isNull?: boolean }
     | {
         $like?: string
         mode?: 'startsWith' | 'endsWith' | 'contains'

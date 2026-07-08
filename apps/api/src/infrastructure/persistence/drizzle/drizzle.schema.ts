@@ -65,7 +65,7 @@ export const groups = snakeCase.table('groups', (t) => ({
 
 export const notes = snakeCase.table('notes', (t) => ({
   id: t.varchar({ length: 24 }).primaryKey(),
-  title: t.varchar({ length: 255 }).default('Untitled Note'),
+  title: t.varchar({ length: 255 }),
   content: t.text().notNull(),
   isPublic: t.boolean().default(false).notNull(),
   createdAt: t.timestamp({ mode: 'date' }).notNull(),

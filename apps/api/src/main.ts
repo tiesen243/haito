@@ -5,6 +5,7 @@ import pkgJson from '@/../package.json' with { type: 'json' }
 import { bootstrap } from '@/bootstrap'
 import { Google } from '@/infrastructure/oauth/providers/google'
 import { authController } from '@/presentation/http/auth.controller'
+import { noteController } from '@/presentation/http/note.controller'
 import { env } from '@/shared/env'
 import { cors } from '@/shared/plugins/cors'
 import { errorHandle } from '@/shared/plugins/error-handle'
@@ -44,6 +45,7 @@ const server = bootstrap({
   // Register controllers
   .get('/', () => `${pkgJson.name} v${pkgJson.version}`)
   .use(authController)
+  .use(noteController)
 
   .compile()
 

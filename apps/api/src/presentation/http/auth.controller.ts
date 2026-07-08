@@ -38,6 +38,20 @@ export const authController = new Elysia({
     body: RegisterDto.input,
   })
 
+  .post(
+    '/refresh-token',
+    ({ cookie }) =>
+      AuthUseCase.refreshToken({
+        refreshToken: cookie['auth.refresh_token'].value ?? '',
+      }).pipe(
+        Effect.tap(({ accessToken, refreshToken, expiresAt: expires }) => {
+          cookie['auth.access_token'].set({ value: accessToken })
+          cookie['auth.refresh_token'].set({ value: refreshToken, expires })
+        })
+      ),
+    AuthSchema
+  )
+
   .get(
     '/:provider',
     ({ params, cookie, query }) =>

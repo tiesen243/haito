@@ -5,7 +5,7 @@ import type { Session } from '@/domain/entities/session.entity'
 
 import { EntityBase } from '@/domain/abstracts/entity.base'
 
-export const UserProps = Schema.Struct({
+export class User extends EntityBase.extend<User>('domain/entity/User')({
   username: Schema.String,
   email: Schema.String,
   image: Schema.NullishOr(Schema.String),
@@ -13,12 +13,7 @@ export const UserProps = Schema.Struct({
     Schema.propertySignature,
     Schema.withConstructorDefault(() => null)
   ),
-})
-export type UserProps = Schema.Schema.Type<typeof UserProps>
-
-export class User extends EntityBase.extend<User>('domain/entity/User')(
-  UserProps
-) {
+}) {
   private _accounts: Account[] = []
   private _sessions: Session[] = []
 

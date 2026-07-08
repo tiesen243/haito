@@ -21,9 +21,13 @@ export class EntityBase extends Schema.Class<EntityBase>(
 )(EntityBaseProps) {
   public clone(props: Partial<this>): this {
     const constructor = this.constructor as new (props: unknown) => this
+    const cleanProps = Object.fromEntries(
+      Object.entries(props).filter(([_, value]) => value)
+    )
+
     return new constructor({
       ...structuredClone(this),
-      ...props,
+      ...cleanProps,
       updatedAt: new Date(),
     })
   }

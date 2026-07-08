@@ -5,15 +5,10 @@ import type { User } from '@/domain/entities/user.entity'
 
 import { EntityBase } from '@/domain/abstracts/entity.base'
 
-export const GroupProps = Schema.Struct({
+export class Group extends EntityBase.extend<Group>('domain/entity/Group')({
   name: Schema.String,
   userId: Schema.String,
-})
-export type GroupProps = Schema.Schema.Type<typeof GroupProps>
-
-export class Group extends EntityBase.extend<Group>('domain/entity/Group')(
-  GroupProps
-) {
+}) {
   private _user: User | null = null
   private _notes: Note[] = []
 

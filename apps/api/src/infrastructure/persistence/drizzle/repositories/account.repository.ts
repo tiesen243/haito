@@ -30,6 +30,17 @@ export const DrizzleAccountRepository = Layer.effect(
             .limit(1)
         ).pipe(Effect.map((rows) => (rows[0] ? new Account(rows[0]) : null))),
 
+      save: (entity) =>
+        $(
+          db
+            .insert(accounts)
+            .values(entity.toJSON())
+            .onConflictDoUpdate({
+              target: [accounts.provider, accounts.providerAccountId],
+              set: entity.toJSON(),
+            })
+        ).pipe(Effect.asVoid),
+
       delete: (entity) =>
         $(
           db

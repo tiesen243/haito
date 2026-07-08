@@ -5,10 +5,16 @@ import type { User } from '@/domain/entities/user.entity'
 
 import { EntityBase } from '@/domain/abstracts/entity.base'
 
-export const NoteProps = Schema.Struct({
-  title: Schema.String,
+export class Note extends EntityBase.extend<Note>('domain/entity/Group')({
+  title: Schema.NullishOr(Schema.String).pipe(
+    Schema.propertySignature,
+    Schema.withConstructorDefault(() => 'Untitled')
+  ),
   content: Schema.String,
-  isPublic: Schema.Boolean,
+  isPublic: Schema.Boolean.pipe(
+    Schema.propertySignature,
+    Schema.withConstructorDefault(() => false)
+  ),
   deletedAt: Schema.NullishOr(Schema.DateFromSelf).pipe(
     Schema.propertySignature,
     Schema.withConstructorDefault(() => null)
@@ -19,12 +25,7 @@ export const NoteProps = Schema.Struct({
     Schema.propertySignature,
     Schema.withConstructorDefault(() => null)
   ),
-})
-export type NoteProps = Schema.Schema.Type<typeof NoteProps>
-
-export class Note extends EntityBase.extend<Note>('domain/entity/Group')(
-  NoteProps
-) {
+}) {
   private _user: User | null = null
   private _group: Group | null = null
 

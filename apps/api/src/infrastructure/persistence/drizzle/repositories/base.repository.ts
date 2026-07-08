@@ -11,6 +11,8 @@ import {
   gte,
   ilike,
   inArray,
+  isNotNull,
+  isNull,
   lt,
   lte,
   or,
@@ -54,12 +56,21 @@ export const DrizzleBaseRepository = <TEntity extends EntityBase>(
     count: (_criterias) => $(db.$count(table)),
 
     save: (entity) =>
-      $(db.insert(table).values(entity.toJSON())).pipe(Effect.asVoid),
+      $(
+        db
+          .insert(table)
+          .values(entity.toJSON())
+          .onConflictDoUpdate({
+            target: table.id as never,
+            set: entity.toJSON(),
+          })
+      ).pipe(Effect.asVoid),
 
     delete: (entity) =>
       $(db.delete(table).where(eq(table.id, entity.id))).pipe(Effect.asVoid),
   }) satisfies IRepositoryBase<TEntity>
 
+// oxlint-disable-next-line complexity
 export function buildWhereClause<TEntity>(
   table: AnyPgTable,
   criterias: IRepositoryBase.Criteria<TEntity>[]
@@ -84,6 +95,10 @@ export function buildWhereClause<TEntity>(
         if ('$lte' in operator) andClauses.push(lte(column, operator.$lte))
         if ('$in' in operator)
           andClauses.push(inArray(column, operator.$in as never))
+        if ('$isNull' in operator)
+          andClauses.push(operator.$isNull ? isNull(column) : isNotNull(column))
+        if ('$notNull' in operator && operator.$notNull === true)
+          andClauses.push(isNotNull(column))
         if ('$like' in operator) {
           const mode = operator.mode ?? 'contains'
           let value = operator.$like

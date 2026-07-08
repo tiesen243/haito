@@ -1,4 +1,8 @@
-import type { LoginDto, RegisterDto } from '@/application/dto/auth.dto'
+import type {
+  LoginDto,
+  RefreshTokenDto,
+  RegisterDto,
+} from '@/application/dto/auth.dto'
 import type { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
 
 import { Auth } from '@/application/context'
@@ -10,6 +14,8 @@ import { SessionRepository } from '@/domain/repositories/session.repository'
 import { UserRepository } from '@/domain/repositories/user.repository'
 import { HttpError } from '@/shared/http-error'
 import {
+  constantTimeEqual,
+  decodeHex,
   encodeHex,
   generateSecureString,
   hashSecret,
@@ -125,6 +131,57 @@ export class AuthUseCase {
 
           return { id: user.id }
         })
+      }
+  )
+
+  public static refreshToken = createUseCase<
+    RefreshTokenDto.Input,
+    RefreshTokenDto.Output
+  >(
+    (input) =>
+      function* refreshTokenUseCaseFunc() {
+        const sessionRepository = yield* SessionRepository
+
+        const [id, secret] = input.refreshToken.split('.')
+        if (!id || !secret)
+          return yield* HttpError.unauthorized('Invalid refresh token')
+
+        let [session] = yield* sessionRepository.find(
+          [{ id }],
+          {},
+          { limit: 1 }
+        )
+        if (!session)
+          return yield* HttpError.unauthorized('Invalid refresh token')
+
+        const now = Date.now()
+        const expiresTime = new Date(session.expiresAt).getTime()
+        const isValid = constantTimeEqual(
+          yield* hashSecret(secret),
+          decodeHex(session.token)
+        )
+
+        if (!isValid || now >= expiresTime) {
+          yield* sessionRepository.delete(session)
+          return yield* HttpError.unauthorized('Refresh token expired')
+        }
+
+        if (now >= expiresTime - Auth.sessionTokenThreshold) {
+          const newExpiresAt = new Date(now + Auth.sessionTokenExpiration)
+          session = session.clone({ expiresAt: newExpiresAt })
+          yield* sessionRepository.save(session)
+        }
+
+        const accessToken = yield* Auth.jwt.sign(
+          { sub: session.userId },
+          { expiresIn: Auth.accessTokenExpiration }
+        )
+
+        return {
+          accessToken,
+          refreshToken: input.refreshToken,
+          expiresAt: session.expiresAt,
+        }
       }
   )
 
