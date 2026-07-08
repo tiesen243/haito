@@ -2,7 +2,7 @@ import * as Schema from 'effect/Schema'
 
 import type { User } from '@/domain/entities/user.entity'
 
-import { EntityBase } from '@/shared/abstracts/entity.base'
+import { EntityBase } from '@/domain/abstracts/entity.base'
 
 export const AccountProps = Schema.Struct({
   provider: Schema.String,

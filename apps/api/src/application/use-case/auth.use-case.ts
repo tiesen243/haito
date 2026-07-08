@@ -29,7 +29,7 @@ export const whoamiUseCase = createUseCase<{ token: string }, User>(
       const { sub } = yield* jwt.verify(token)
       if (!sub) return yield* HttpError.unauthorized('Invalid token')
 
-      const user = yield* userRepository.findBy({ id: sub })
+      const [user] = yield* userRepository.find([{ id: sub }])
       if (!user) return yield* HttpError.notFound('User not found')
 
       return user
@@ -42,7 +42,7 @@ export const loginUseCase = createUseCase<LoginDto.Input, LoginDto.Output>(
       const accountRepository = yield* AccountRepository
       const userRepository = yield* UserRepository
 
-      const user = yield* userRepository.findBy({ email: input.email })
+      const [user] = yield* userRepository.find([{ email: input.email }])
       if (!user) return yield* HttpError.unauthorized('Invalid credentials')
 
       const account = yield* accountRepository.findByProvider({
@@ -77,7 +77,7 @@ export const loginWithOAuthUseCase = createUseCase<
         if (!account) {
           let userId = ''
 
-          let user = yield* userRepository.findBy({ email: input.email })
+          let [user] = yield* userRepository.find([{ email: input.email }])
           if (user) userId = user.id
           else {
             user = User.make({
@@ -115,19 +115,13 @@ export const registerUseCase = createUseCase<
       const accountRepository = yield* AccountRepository
       const userRepository = yield* UserRepository
 
-      const existingUser = yield* userRepository.findBy({ email })
-      if (existingUser) return yield* HttpError.conflict('User already exists')
+      const [existingUser] = yield* userRepository.find([{ username, email }])
+      if (existingUser)
+        return yield* HttpError.conflict('Username or email already exists')
 
       return yield* runTransaction(function* registerTransaction() {
         const user = User.make({ username, email, image: null })
         yield* userRepository.save(user)
-
-        const existingAccount = yield* accountRepository.findByProvider({
-          provider: 'credentials',
-          providerAccountId: user.id,
-        })
-        if (existingAccount)
-          return yield* HttpError.conflict('User already exists')
 
         const account = Account.make({
           provider: 'credentials',

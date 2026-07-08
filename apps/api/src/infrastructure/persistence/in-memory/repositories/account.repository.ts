@@ -4,6 +4,7 @@ import * as Ref from 'effect/Ref'
 
 import { AccountRepository } from '@/domain/repositories/account.repository'
 import { InMemoryClient } from '@/infrastructure/persistence/in-memory/in-memory.client'
+import { InMemoryBaseRepository } from '@/infrastructure/persistence/in-memory/repositories/base.repository'
 
 export const InMemoryAccountRepository = Layer.effect(
   AccountRepository,
@@ -11,6 +12,8 @@ export const InMemoryAccountRepository = Layer.effect(
     const { accounts } = yield* InMemoryClient
 
     return {
+      ...InMemoryBaseRepository(accounts),
+
       findByProvider: (criteria) =>
         Ref.get(accounts).pipe(
           Effect.map(
@@ -20,10 +23,16 @@ export const InMemoryAccountRepository = Layer.effect(
           )
         ),
 
-      save: (account) =>
+      save: (entity) =>
         Ref.update(accounts, (map) =>
-          map.set(`${account.provider}_${account.providerAccountId}`, account)
+          map.set(`${entity.provider}_${entity.providerAccountId}`, entity)
         ).pipe(Effect.asVoid),
+
+      delete: (entity) =>
+        Ref.update(accounts, (map) => {
+          map.delete(`${entity.provider}_${entity.providerAccountId}`)
+          return map
+        }).pipe(Effect.asVoid),
     }
   })
 )

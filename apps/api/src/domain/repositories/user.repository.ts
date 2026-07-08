@@ -1,17 +1,11 @@
-import type * as Effect from 'effect/Effect'
-
 import * as Context from 'effect/Context'
 
+import type { IRepositoryBase } from '@/domain/abstracts/repository.base'
 import type { User } from '@/domain/entities/user.entity'
-import type { HttpError } from '@/shared/http-error'
+
+// oxlint-disable-next-line typescript/no-empty-interface, typescript/no-empty-object-type
+export interface IUserRepository extends IRepositoryBase<User> {}
 
 export class UserRepository extends Context.Tag(
   'domain/repository/UserRepository'
-)<
-  UserRepository,
-  {
-    findBy: (criteria: Partial<User>) => Effect.Effect<User | null, HttpError>
-
-    save: (user: User) => Effect.Effect<void, HttpError>
-  }
->() {}
+)<UserRepository, IUserRepository>() {}

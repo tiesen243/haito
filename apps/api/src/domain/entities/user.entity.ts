@@ -3,7 +3,7 @@ import * as Schema from 'effect/Schema'
 import type { Account } from '@/domain/entities/account.entity'
 import type { Session } from '@/domain/entities/session.entity'
 
-import { EntityBase } from '@/shared/abstracts/entity.base'
+import { EntityBase } from '@/domain/abstracts/entity.base'
 
 export const UserProps = Schema.Struct({
   username: Schema.String,

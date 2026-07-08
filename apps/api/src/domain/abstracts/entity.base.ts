@@ -17,7 +17,7 @@ export const EntityBaseProps = Schema.Struct({
 })
 
 export class EntityBase extends Schema.Class<EntityBase>(
-  'domain/entity/EntityBase'
+  'domain/abstracts/EntityBase'
 )(EntityBaseProps) {
   public clone(props: Partial<this>): this {
     const constructor = this.constructor as new (props: unknown) => this
