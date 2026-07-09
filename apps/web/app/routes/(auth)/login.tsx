@@ -12,15 +12,15 @@ import {
 import { useForm } from '@haito/ui/hooks/use-form'
 import { Input } from '@haito/ui/input'
 import { toast } from '@haito/ui/toast'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
 import { env } from '@/env'
-import { useAuth } from '@/hooks/use-auth'
 import { api } from '@/lib/api'
 
 export default function AuthLoginPage() {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { refetch } = useAuth()
 
   const form = useForm({
     defaultValues: { email: '', password: '' },
@@ -33,7 +33,7 @@ export default function AuthLoginPage() {
       if (!success) return toast.add({ type: 'error', description: message })
 
       toast.add({ type: 'success', description: 'Login successful' })
-      await refetch()
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'whoami'] })
       navigate('/')
     },
   })
