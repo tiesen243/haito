@@ -14,11 +14,11 @@ export const loader = ({ request }: Route.LoaderArgs) => {
   const headers = new Headers()
   headers.append(
     'Set-Cookie',
-    `auth.access_token=${access_token}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=${15 * 60}`
+    `auth.access_token=${access_token}; Path=/; HttpOnly; SameSite=None; Partitioned; Secure; Max-Age=${15 * 60}`
   )
   headers.append(
     'Set-Cookie',
-    `auth.refresh_token=${refresh_token}; Path=/; HttpOnly; SameSite=None; Secure; Expires=${expires_at}`
+    `auth.refresh_token=${refresh_token}; Path=/; HttpOnly; SameSite=None; Partitioned; Secure; Expires=${expires_at}`
   )
 
   return redirect('/', { headers })

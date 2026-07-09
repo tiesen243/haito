@@ -18,8 +18,8 @@ const server = bootstrap({
   cookie: {
     path: '/',
     httpOnly: true,
-    sameSite: 'none',
-    partitioned: true,
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+    partitioned: env.NODE_ENV === 'production',
     secure: env.NODE_ENV === 'production',
     secrets: env.AUTH_SECRET,
   },
