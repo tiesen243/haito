@@ -3,8 +3,6 @@ import type { RouteConfig } from '@react-router/dev/routes'
 import { index, layout, route } from '@react-router/dev/routes'
 
 export default [
-  route('/api/auth', './routes/api/auth.ts'),
-
   layout('./routes/(main)/__layout.tsx', [
     index('./routes/(main)/_index.tsx'),
     route('/:id', './routes/(main)/[id].tsx'),
