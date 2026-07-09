@@ -41,7 +41,7 @@ export class Github extends BaseProvider {
       })
 
       return {
-        id: user.id,
+        id: user.id.toString(),
         name: user.name,
         email: user.email,
         image: user.avatar_url,

@@ -8,11 +8,7 @@ export class Account extends EntityBase.extend<Account>(
   'domain/entity/Account'
 )({
   provider: Schema.String,
-  providerAccountId: Schema.transform(
-    Schema.Union(Schema.String, Schema.Number),
-    Schema.String,
-    { decode: String, encode: (value) => value }
-  ),
+  providerAccountId: Schema.String,
   password: Schema.NullishOr(Schema.String),
   userId: Schema.String,
 }) {
