@@ -8,11 +8,7 @@ export const env = createEnv({
       .default('development'),
   },
 
-  server: {
-    DATABASE_URL: z
-      .string()
-      .default('postgresql://postgres:secret@127.0.0.1:5432/db'),
-  },
+  server: {},
 
   clientPrefix: 'VITE_',
   client: {

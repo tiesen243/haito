@@ -22,7 +22,7 @@ const server = bootstrap({
     secrets: env.AUTH_SECRET,
   },
 
-  persistenceDriver: 'in-memory',
+  persistenceDriver: 'drizzle',
   providers: [new Google(env.AUTH_GOOGLE_ID, env.AUTH_GOOGLE_SECRET)],
 })
   // Register plugins

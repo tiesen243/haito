@@ -8,18 +8,28 @@ export interface ApiResponse<TData, TError = Record<string, unknown>> {
 export class Api {
   private readonly baseHeaders = {
     'Content-Type': 'application/json',
-    'x-client': 'unknown',
+    'X-Requested-With': 'unknown',
   }
+
+  private readonly onError?: (
+    status: number,
+    message: string
+  ) => void | Promise<void>
 
   constructor(
     private readonly baseUrl: string,
-    headers?: Record<string, string>
+    options?: {
+      headers?: Record<string, string>
+      onError?: (status: number, message: string) => void | Promise<void>
+    }
   ) {
-    if (headers)
+    if (options?.headers)
       this.baseHeaders = {
         ...this.baseHeaders,
-        ...headers,
+        ...options.headers,
       }
+
+    if (options?.onError) this.onError = options.onError
   }
 
   public get<TData, TError = Record<string, unknown>>(
@@ -56,6 +66,18 @@ export class Api {
     })
   }
 
+  public patch<TData, TError = Record<string, unknown>>(
+    endpoint: string,
+    body?: Record<string, unknown>,
+    options?: RequestInit
+  ): Promise<ApiResponse<TData, TError>> {
+    return this.request<TData, TError>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: body ? JSON.stringify(body) : undefined,
+    })
+  }
+
   public delete<TData, TError = Record<string, unknown>>(
     endpoint: string,
     options?: RequestInit
@@ -72,6 +94,7 @@ export class Api {
   ): Promise<ApiResponse<TData, TError>> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
+      credentials: 'include',
       headers: {
         ...this.baseHeaders,
         ...options?.headers,
@@ -83,7 +106,10 @@ export class Api {
         TData,
         TError
       >
-      if (!response.ok) return { success: false, message, data: null, error }
+      if (!response.ok) {
+        await this.onError?.(response.status, message)
+        return { success: false, message, data: null, error }
+      }
       return { success: true, message, data, error: null }
     } catch (error) {
       return {

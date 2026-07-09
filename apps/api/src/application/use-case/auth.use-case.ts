@@ -1,7 +1,10 @@
 import type {
+  ChangePasswordDto,
   LoginDto,
+  LogoutDto,
   RefreshTokenDto,
   RegisterDto,
+  WhoAmIDto,
 } from '@/application/dto/auth.dto'
 import type { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
 
@@ -24,8 +27,7 @@ import { createUseCase, runTransaction } from '@/shared/lib/utils'
 
 // oxlint-disable-next-line typescript/no-extraneous-class
 export class AuthUseCase {
-  // oxlint-disable-next-line typescript/no-invalid-void-type
-  public static whoami = createUseCase<void, User>(
+  public static whoami = createUseCase<WhoAmIDto.Input, WhoAmIDto.Output>(
     () =>
       // oxlint-disable-next-line unicorn/consistent-function-scoping
       function* whoamiUseCaseFunc() {
@@ -134,43 +136,29 @@ export class AuthUseCase {
       }
   )
 
+  public static logout = createUseCase<LogoutDto.Input, LogoutDto.Output>(
+    (input) =>
+      function* logoutUseCaseFunc() {
+        const refreshToken = yield* AuthUseCase.validateRefreshToken({
+          refreshToken: input.refreshToken,
+          isExtended: false,
+        })
+
+        const sessionRepository = yield* SessionRepository
+        yield* sessionRepository.delete(refreshToken)
+      }
+  )
+
   public static refreshToken = createUseCase<
     RefreshTokenDto.Input,
     RefreshTokenDto.Output
   >(
     (input) =>
       function* refreshTokenUseCaseFunc() {
-        const sessionRepository = yield* SessionRepository
-
-        const [id, secret] = input.refreshToken.split('.')
-        if (!id || !secret)
-          return yield* HttpError.unauthorized('Invalid refresh token')
-
-        let [session] = yield* sessionRepository.find(
-          [{ id }],
-          {},
-          { limit: 1 }
-        )
-        if (!session)
-          return yield* HttpError.unauthorized('Invalid refresh token')
-
-        const now = Date.now()
-        const expiresTime = new Date(session.expiresAt).getTime()
-        const isValid = constantTimeEqual(
-          yield* hashSecret(secret),
-          decodeHex(session.token)
-        )
-
-        if (!isValid || now >= expiresTime) {
-          yield* sessionRepository.delete(session)
-          return yield* HttpError.unauthorized('Refresh token expired')
-        }
-
-        if (now >= expiresTime - Auth.sessionTokenThreshold) {
-          const newExpiresAt = new Date(now + Auth.sessionTokenExpiration)
-          session = session.clone({ expiresAt: newExpiresAt })
-          yield* sessionRepository.save(session)
-        }
+        const session = yield* AuthUseCase.validateRefreshToken({
+          refreshToken: input.refreshToken,
+          isExtended: true,
+        })
 
         const accessToken = yield* Auth.jwt.sign(
           { sub: session.userId },
@@ -182,6 +170,47 @@ export class AuthUseCase {
           refreshToken: input.refreshToken,
           expiresAt: session.expiresAt,
         }
+      }
+  )
+
+  public static changePassword = createUseCase<
+    ChangePasswordDto.Input,
+    ChangePasswordDto.Output
+  >(
+    (input) =>
+      function* changePasswordUseCaseFunc() {
+        const accountRepository = yield* AccountRepository
+        const user = yield* Auth
+
+        let account = yield* accountRepository.findByProvider({
+          provider: 'credentials',
+          providerAccountId: user.id,
+        })
+
+        if (!account || !account.password) {
+          account = Account.make({
+            provider: 'credentials',
+            providerAccountId: user.id,
+            password: yield* Auth.password.hash(input.newPassword),
+            userId: user.id,
+          })
+          return yield* accountRepository.save(account)
+        }
+
+        if (!input.oldPassword)
+          return yield* HttpError.badRequest('Old password is required')
+
+        const isValid = yield* Auth.password.verify(
+          account.password,
+          input.oldPassword
+        )
+        if (!isValid)
+          return yield* HttpError.unauthorized('Invalid old password')
+
+        account = account.clone({
+          password: yield* Auth.password.hash(input.newPassword),
+        })
+        return yield* accountRepository.save(account)
       }
   )
 
@@ -214,6 +243,51 @@ export class AuthUseCase {
         )
 
         return { accessToken, refreshToken, expiresAt }
+      }
+  )
+
+  private static validateRefreshToken = createUseCase<
+    { refreshToken: string; isExtended: boolean },
+    Session
+  >(
+    (input) =>
+      function* validateRefreshTokenFunc() {
+        const sessionRepository = yield* SessionRepository
+
+        const [id, secret] = input.refreshToken.split('.')
+        if (!id || !secret)
+          return yield* HttpError.unauthorized('Invalid refresh token')
+
+        let [session] = yield* sessionRepository.find(
+          [{ id }],
+          {},
+          { limit: 1 }
+        )
+        if (!session)
+          return yield* HttpError.unauthorized('Invalid refresh token')
+
+        const now = Date.now()
+        const expiresTime = new Date(session.expiresAt).getTime()
+        const isValid = constantTimeEqual(
+          yield* hashSecret(secret),
+          decodeHex(session.token)
+        )
+
+        if (!isValid || now >= expiresTime) {
+          yield* sessionRepository.delete(session)
+          return yield* HttpError.unauthorized('Refresh token expired')
+        }
+
+        if (
+          now >= expiresTime - Auth.sessionTokenThreshold &&
+          input.isExtended
+        ) {
+          const newExpiresAt = new Date(now + Auth.sessionTokenExpiration)
+          session = session.clone({ expiresAt: newExpiresAt })
+          yield* sessionRepository.save(session)
+        }
+
+        return session
       }
   )
 }

@@ -9,9 +9,9 @@
       "types": "./dist/main.d.mts",
       "default": "./dist/main.mjs"
     },
-    "./dtos/*": {
-      "types": "./dist/application/dtos/*.dto.d.mts",
-      "default": "./dist/application/dtos/*.dto.mjs"
+    "./dto/*": {
+      "types": "./dist/application/dto/*.dto.d.mts",
+      "default": "./dist/application/dto/*.dto.mjs"
     }
   },
   "scripts": {

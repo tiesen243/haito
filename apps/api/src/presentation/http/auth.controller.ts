@@ -1,7 +1,11 @@
 import * as Effect from 'effect/Effect'
 import { Elysia } from 'elysia'
 
-import { LoginDto, RegisterDto } from '@/application/dto/auth.dto'
+import {
+  ChangePasswordDto,
+  LoginDto,
+  RegisterDto,
+} from '@/application/dto/auth.dto'
 import { AuthSchema } from '@/application/types'
 import { AuthUseCase } from '@/application/use-case/auth.use-case'
 import { InfrastructureOAuthModule } from '@/infrastructure/oauth/oauth.module'
@@ -16,7 +20,27 @@ export const authController = new Elysia({
 })
 
   .group('', (app) =>
-    app.use(authMiddleware).get('/whoami', () => AuthUseCase.whoami())
+    app
+      .use(authMiddleware)
+      .get('/whoami', () => AuthUseCase.whoami())
+      .post(
+        '/logout',
+        ({ cookie }) =>
+          AuthUseCase.logout({
+            refreshToken: cookie['auth.refresh_token'].value ?? '',
+          }).pipe(
+            Effect.tap(() => {
+              cookie['auth.access_token'].remove()
+              cookie['auth.refresh_token'].remove()
+            })
+          ),
+        AuthSchema
+      )
+      .post(
+        '/change-password',
+        ({ body }) => AuthUseCase.changePassword(body),
+        { body: ChangePasswordDto.input }
+      )
   )
 
   .post(

@@ -1,6 +1,7 @@
 import type { MetaDescriptor } from 'react-router'
 
 import { env } from '@/env'
+import { APP_DESCRIPTION, APP_NAME } from '@/lib/contants'
 
 interface Metadata {
   title?: string
@@ -13,12 +14,8 @@ interface Metadata {
 }
 
 export const createMetadata = (overrides: Metadata = {}): MetaDescriptor[] => {
-  const siteName = 'Haito'
-
-  const title = overrides.title ? `${overrides.title} | ${siteName}` : siteName
-  const description =
-    overrides.description ??
-    'Haito is a modern web application built with Remix and React.'
+  const title = overrides.title ? `${overrides.title} | ${APP_NAME}` : APP_NAME
+  const description = overrides.description ?? APP_DESCRIPTION
 
   const images = overrides.openGraph?.images ?? []
   const url = overrides.openGraph?.url
@@ -31,6 +28,7 @@ export const createMetadata = (overrides: Metadata = {}): MetaDescriptor[] => {
     { name: 'og:title', content: title },
     { name: 'og:description', content: description },
     { name: 'og:url', content: url },
+    { name: 'og:site_name', content: APP_NAME },
     { name: 'og:type', content: overrides.openGraph?.type ?? 'website' },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: title },

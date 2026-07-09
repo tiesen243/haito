@@ -1,5 +1,16 @@
 import { Api } from '@haito/lib/api'
 
-export const api = new Api('http://localhost:3000/api', {
-  'x-client': 'react-router',
+import { env } from '@/env'
+
+export const api = new Api(`${env.VITE_API_URL}/api`, {
+  headers: {
+    'X-Requested-With': 'react-router',
+  },
+  onError: async (status, message) => {
+    if (status === 401 && message.toLowerCase().includes('token'))
+      await fetch(`${env.VITE_API_URL}/api/auth/refresh-token`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+  },
 })

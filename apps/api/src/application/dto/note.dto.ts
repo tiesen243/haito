@@ -1,7 +1,6 @@
 import * as z from 'zod'
 
 import { baseSchema, PaginationSchema } from '@/application/types'
-import { Note } from '@/domain/entities/note.entity'
 
 export const noteSchema = baseSchema.extend({
   title: z.nullable(z.string()).optional(),
@@ -32,7 +31,7 @@ export namespace OneNoteDto {
   export const input = noteSchema.pick({ id: true })
   export type Input = z.infer<typeof input>
 
-  export const output = Note
+  export const output = noteSchema
   export type Output = z.infer<typeof output>
 }
 
