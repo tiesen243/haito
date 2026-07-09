@@ -77,19 +77,29 @@ export default function AuthLoginPage() {
             <Button type='submit'>Login</Button>
           </Field>
 
-          <Field>
+          <Field orientation='responsive'>
+            <Button
+              variant='outline'
+              nativeButton={false}
+              render={
+                <a
+                  href={`${env.VITE_API_URL}/api/auth/github?redirect_uri=${env.VITE_WEB_URL}`}
+                >
+                  Login with GitHub
+                </a>
+              }
+            />
             <Button
               variant='outline'
               nativeButton={false}
               render={
                 <a
                   href={`${env.VITE_API_URL}/api/auth/google?redirect_uri=${env.VITE_WEB_URL}`}
-                  aria-label='Login with Google'
-                />
+                >
+                  Login with Google
+                </a>
               }
-            >
-              Login with Google
-            </Button>
+            />
           </Field>
         </FieldGroup>
       </FieldSet>

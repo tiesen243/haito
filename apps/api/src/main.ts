@@ -3,6 +3,7 @@ import { CloudflareAdapter } from 'elysia/adapter/cloudflare-worker'
 
 import pkgJson from '@/../package.json' with { type: 'json' }
 import { bootstrap } from '@/bootstrap'
+import { Github } from '@/infrastructure/oauth/providers/github'
 import { Google } from '@/infrastructure/oauth/providers/google'
 import { authController } from '@/presentation/http/auth.controller'
 import { noteController } from '@/presentation/http/note.controller'
@@ -23,7 +24,10 @@ const server = bootstrap({
   },
 
   persistenceDriver: 'drizzle',
-  providers: [new Google(env.AUTH_GOOGLE_ID, env.AUTH_GOOGLE_SECRET)],
+  providers: [
+    new Github(env.AUTH_GITHUB_ID, env.AUTH_GITHUB_SECRET),
+    new Google(env.AUTH_GOOGLE_ID, env.AUTH_GOOGLE_SECRET),
+  ],
 })
   // Register plugins
   .use(cors)
