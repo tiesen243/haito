@@ -3,12 +3,12 @@ import type { LogoutDto } from '@haito/api/dto/auth'
 import { DropdownMenuItem } from '@haito/ui/dropdown-menu'
 import { LogOutIcon } from '@haito/ui/icons'
 import { toast } from '@haito/ui/toast'
+import { useQueryClient } from '@tanstack/react-query'
 
-import { useAuth } from '@/hooks/use-auth'
 import { api } from '@/lib/api'
 
 export const LogoutBtn: React.FC = () => {
-  const { refetch } = useAuth()
+  const queryClient = useQueryClient()
 
   const handleLogout = async () => {
     const { success, message } =
@@ -17,7 +17,7 @@ export const LogoutBtn: React.FC = () => {
     if (!success) return toast.add({ type: 'error', description: message })
 
     toast.add({ type: 'success', description: 'Logout successful' })
-    await refetch()
+    queryClient.setQueriesData({ queryKey: ['auth', 'whoami'] }, null)
   }
 
   return (

@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 
 export const useAuth = () => {
-  const { data, status, refetch } = useQuery({
+  const { data, status } = useQuery({
     queryKey: ['auth', 'whoami'],
     queryFn: () =>
       api
@@ -19,5 +19,5 @@ export const useAuth = () => {
     refetchOnWindowFocus: false,
   })
 
-  return { user: data, status, refetch }
+  return { user: data, status }
 }

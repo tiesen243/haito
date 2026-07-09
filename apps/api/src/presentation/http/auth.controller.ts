@@ -126,12 +126,13 @@ export const authController = new Elysia({
             cookie['auth.access_token'].set({ value: accessToken })
             cookie['auth.refresh_token'].set({ value: refreshToken, expires })
           }),
-          Effect.flatMap(({ accessToken, refreshToken }) => {
+          Effect.flatMap(({ accessToken, refreshToken, expiresAt }) => {
             const url = new URL(redirectUri, request.url)
 
             if (!redirectUri.startsWith('/')) {
               url.searchParams.set('access_token', accessToken)
               url.searchParams.set('refresh_token', refreshToken)
+              url.searchParams.set('expires_at', expiresAt.toUTCString())
             }
 
             return HttpError.redirect(url.href)
