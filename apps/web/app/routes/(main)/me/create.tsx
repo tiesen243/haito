@@ -13,11 +13,13 @@ import { useForm } from '@haito/ui/hooks/use-form'
 import { Input } from '@haito/ui/input'
 import { toast } from '@haito/ui/toast'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router'
 
 import { api } from '@/lib/api'
 
 export default function NoteCreatePage() {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const form = useForm({
     defaultValues: { title: '', content: '' },
@@ -30,6 +32,7 @@ export default function NoteCreatePage() {
       if (!success) return toast.add({ type: 'error', description: message })
       toast.add({ type: 'success', description: 'Note added successfully' })
       await queryClient.invalidateQueries({ queryKey: ['notes', 'me'] })
+      navigate('/me/notes')
     },
   })
 

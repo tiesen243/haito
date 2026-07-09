@@ -15,6 +15,7 @@ import { useForm } from '@haito/ui/hooks/use-form'
 import { Input } from '@haito/ui/input'
 import { toast } from '@haito/ui/toast'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router'
 
 import { api } from '@/lib/api'
 import { useMeNote } from '@/routes/(main)/me/_lib/use-me-note'
@@ -38,6 +39,7 @@ const NoteEditForm: React.FC<{
   note: OneNoteDto.Output
 }> = ({ note }) => {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const form = useForm({
     defaultValues: { title: note.title, content: note.content },
@@ -50,6 +52,7 @@ const NoteEditForm: React.FC<{
       if (!success) return toast.add({ type: 'error', description: message })
       toast.add({ type: 'success', description: 'Note updated successfully' })
       await queryClient.invalidateQueries({ queryKey: ['notes', note.id] })
+      navigate(`/me/${note.id}`)
     },
   })
 
