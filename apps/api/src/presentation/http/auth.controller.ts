@@ -64,9 +64,12 @@ export const authController = new Elysia({
 
   .post(
     '/refresh-token',
-    ({ cookie }) =>
+    ({ cookie, headers }) =>
       AuthUseCase.refreshToken({
-        refreshToken: cookie['auth.refresh_token'].value ?? '',
+        refreshToken:
+          headers.authorization?.replace('Bearer ', '') ??
+          cookie['auth.refresh_token'].value ??
+          '',
       }).pipe(
         Effect.tap(({ accessToken, refreshToken, expiresAt: expires }) => {
           cookie['auth.access_token'].set({ value: accessToken })
