@@ -19,6 +19,7 @@ const server = bootstrap({
     path: '/',
     httpOnly: true,
     sameSite: 'none',
+    partitioned: true,
     secure: env.NODE_ENV === 'production',
     secrets: env.AUTH_SECRET,
   },

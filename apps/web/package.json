@@ -13,6 +13,7 @@
     "@haito/lib": "workspace:*",
     "@haito/ui": "workspace:*",
     "@tanstack/react-query": "catalog:prod",
+    "@vercel/react-router": "^1.3.1",
     "isbot": "^5.2.0",
     "next-themes": "catalog:prod",
     "react": "catalog:react",

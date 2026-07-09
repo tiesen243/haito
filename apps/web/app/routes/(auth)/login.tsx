@@ -83,7 +83,7 @@ export default function AuthLoginPage() {
               nativeButton={false}
               render={
                 <a
-                  href={`${env.VITE_API_URL}/api/auth/github?redirect_uri=${env.VITE_WEB_URL}`}
+                  href={`${env.VITE_API_URL}/api/auth/github?redirect_uri=${env.VITE_WEB_URL}/api/auth`}
                 >
                   Login with GitHub
                 </a>
@@ -94,7 +94,7 @@ export default function AuthLoginPage() {
               nativeButton={false}
               render={
                 <a
-                  href={`${env.VITE_API_URL}/api/auth/google?redirect_uri=${env.VITE_WEB_URL}`}
+                  href={`${env.VITE_API_URL}/api/auth/google?redirect_uri=${env.VITE_WEB_URL}/api/auth`}
                 >
                   Login with Google
                 </a>
