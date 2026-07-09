@@ -21,7 +21,7 @@ export const User: React.FC = () => {
 
   if (status === 'pending') return <Avatar className='bg-muted animate-pulse' />
 
-  if (status === 'error')
+  if (!user)
     return (
       <Button nativeButton={false} render={<Link to='/login' />}>
         Login
