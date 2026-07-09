@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@haito/ui/dropdown-menu'
-import { StickyNoteIcon, StickyNotePlusIcon, UserIcon } from '@haito/ui/icons'
+import { StickyNoteIcon, StickyNotePlusIcon, TrashIcon } from '@haito/ui/icons'
 import { Link } from 'react-router'
 
 import { LogoutBtn } from '@/components/header/logout-btn'
@@ -51,13 +51,13 @@ export const User: React.FC = () => {
 
         <DropdownMenuGroup>
           <DropdownMenuItem render={<Link to='/me' />}>
-            <UserIcon /> My Account
-          </DropdownMenuItem>
-          <DropdownMenuItem render={<Link to='/me/notes' />}>
             <StickyNoteIcon /> My Notes
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link to='/me/create' />}>
             <StickyNotePlusIcon /> Create Note
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link to='/me/trash' />}>
+            <TrashIcon /> Trash
           </DropdownMenuItem>
         </DropdownMenuGroup>
 

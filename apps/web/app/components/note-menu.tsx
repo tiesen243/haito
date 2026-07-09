@@ -12,15 +12,17 @@ import {
   GitBranchIcon,
   GitBranchMinusIcon,
   PencilIcon,
+  TrashIcon,
 } from '@haito/ui/icons'
 import { toast } from '@haito/ui/toast'
 import { useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 import { api } from '@/lib/api'
 
 export const NoteMenu: React.FC<{ note: OneNoteDto.Output }> = ({ note }) => {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const toggleShare = async () => {
     const { success, message } = await api.patch(`/notes/update/${note.id}`, {
@@ -32,6 +34,16 @@ export const NoteMenu: React.FC<{ note: OneNoteDto.Output }> = ({ note }) => {
       description: note.isPublic ? 'Note unshared' : 'Note shared',
     })
     await queryClient.invalidateQueries({ queryKey: ['notes'] })
+  }
+
+  const deleteNote = async () => {
+    const { success, message } = await api.delete(`/notes/delete/${note.id}`)
+    if (!success) return toast.add({ type: 'error', description: message })
+    toast.add({ type: 'success', description: 'Note deleted' })
+
+    await queryClient.invalidateQueries({ queryKey: ['me', 'notes'] })
+    await queryClient.invalidateQueries({ queryKey: ['notes'] })
+    navigate('/me')
   }
 
   return (
@@ -64,6 +76,10 @@ export const NoteMenu: React.FC<{ note: OneNoteDto.Output }> = ({ note }) => {
               <GitBranchIcon /> Share Note
             </>
           )}
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={deleteNote} variant='destructive'>
+          <TrashIcon /> Delete Note
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

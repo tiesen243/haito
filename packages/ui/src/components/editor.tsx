@@ -106,11 +106,11 @@ function RenderMarkdown({
   className,
   children: _,
   ...props
-}: React.ComponentProps<'div'> & { content: string }) {
+}: React.ComponentProps<'article'> & { content: string }) {
   const parsedContent = React.useMemo(() => parseMarkdown(content), [content])
 
   return (
-    <div
+    <article
       data-slot='markdown-renderer'
       className={cn(
         '[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-pretty',

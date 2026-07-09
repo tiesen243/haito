@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@haito/ui/card'
+import { Typography } from '@haito/ui/typography'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 
@@ -20,15 +21,17 @@ export default function IndexPage() {
   })
 
   return (
-    <main className='container'>
-      <section className='grid gap-4 py-8 md:grid-cols-2 lg:grid-cols-3'>
+    <main className='container py-4'>
+      <Typography variant='h1'>Shared Notes</Typography>
+
+      <section className='mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
         {data?.notes.map((note) => (
           <Link to={`/${note.id}`} key={note.id}>
             <Card>
               <CardHeader>
                 <CardTitle>{note.title || 'Untitled Note'}</CardTitle>
                 <CardDescription>
-                  {new Date(note.updatedAt).toDateString()}
+                  Last Updated: {new Date(note.updatedAt).toDateString()}
                 </CardDescription>
               </CardHeader>
               <CardContent className='truncate'>{note.content}</CardContent>

@@ -61,22 +61,7 @@ export class NoteUseCase {
         const noteRepository = yield* NoteRepository
 
         const [note] = yield* noteRepository.find([
-          { id: input.id, isPublic: true, deletedAt: { $isNull: true } },
-        ])
-        if (!note) return yield* HttpError.notFound('Note not found')
-
-        return note
-      }
-  )
-
-  public static oneForMe = createUseCase<OneNoteDto.Input, OneNoteDto.Output>(
-    (input) =>
-      function* oneForMeUseCaseFunc() {
-        const user = yield* Auth
-        const noteRepository = yield* NoteRepository
-
-        const [note] = yield* noteRepository.find([
-          { id: input.id, userId: user.id },
+          { id: input.id, deletedAt: { $isNull: true } },
         ])
         if (!note) return yield* HttpError.notFound('Note not found')
 

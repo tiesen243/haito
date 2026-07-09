@@ -33,10 +33,6 @@ export const noteController = new Elysia({
     query: AllNotesDto.input.omit({ userId: true }),
   })
 
-  .get('/me/:id', ({ params }) => NoteUseCase.oneForMe(params), {
-    params: OneNoteDto.input,
-  })
-
   .post('/create', ({ body }) => NoteUseCase.create(body), {
     body: CreateNoteDto.input,
   })

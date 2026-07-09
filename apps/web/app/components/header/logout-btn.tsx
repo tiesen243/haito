@@ -21,7 +21,7 @@ export const LogoutBtn: React.FC = () => {
   }
 
   return (
-    <DropdownMenuItem onClick={handleLogout}>
+    <DropdownMenuItem onClick={handleLogout} variant='destructive'>
       <LogOutIcon /> Logout
     </DropdownMenuItem>
   )

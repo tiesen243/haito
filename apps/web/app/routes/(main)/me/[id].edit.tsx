@@ -12,21 +12,36 @@ import {
   FieldSet,
 } from '@haito/ui/field'
 import { useForm } from '@haito/ui/hooks/use-form'
+import { Loader2Icon } from '@haito/ui/icons'
 import { Input } from '@haito/ui/input'
 import { toast } from '@haito/ui/toast'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
 import { api } from '@/lib/api'
-import { useMeNote } from '@/routes/(main)/me/_lib/use-me-note'
 
 import type { Route } from './+types/[id].edit'
 
 export default function MeNoteEditPage({ params }: Route.ComponentProps) {
-  const { data, isLoading } = useMeNote(params.id ?? '')
+  const { data, isLoading } = useQuery({
+    queryKey: ['notes', params.id],
+    queryFn: () =>
+      api.get<OneNoteDto.Output>(`/notes/${params.id}`).then((res) => res.data),
+  })
 
-  if (isLoading) return <div>Loading...</div>
-  if (!data) return <div>Note not found</div>
+  if (isLoading)
+    return (
+      <main className='container grid min-h-[calc(100dvh-3.5rem)] place-items-center py-4'>
+        <Loader2Icon className='animate-spin' />
+      </main>
+    )
+
+  if (!data)
+    return (
+      <main className='container grid min-h-[calc(100dvh-3.5rem)] place-items-center py-4'>
+        <span>Note not found</span>
+      </main>
+    )
 
   return (
     <main className='container py-4'>
